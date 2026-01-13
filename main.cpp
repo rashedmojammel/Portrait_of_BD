@@ -425,33 +425,21 @@ void rdrawWalkingPersonLeft(float x, float y, float r, float g, float b) {
 }
 void rdrawTrafficLight(float x, float y) {
     // Pole
-    rdrawRectangle(x - 4, y, 8, 180, 0.25f, 0.25f, 0.25f);  // Dark gray pole
+    rdrawRectangle(x - 2, y, 4, 100, 0.25f, 0.25f, 0.25f);
 
-    // Light box (black with rounded feel)
-    rdrawRectangle(x - 18, y + 180, 36, 90, 0.15f, 0.15f, 0.15f);
+    // Box
+    rdrawRectangle(x - 8, y + 100, 16, 54, 0.15f, 0.15f, 0.15f);
 
-    // Red light
-    rdrawCircle(x, y + 210, 12, 0.9f, 0.1f, 0.1f);          // Bright red
-    rdrawCircle(x, y + 210, 8,  1.0f, 0.3f, 0.3f);          // Glow
-
-    // Yellow light
-    rdrawCircle(x, y + 240, 12, 0.9f, 0.7f, 0.1f);          // Bright yellow
-    rdrawCircle(x, y + 240, 8,  1.0f, 0.85f, 0.2f);         // Glow
-
-    // Green light
-    rdrawCircle(x, y + 270, 12, 0.1f, 0.8f, 0.1f);          // Bright green
-    rdrawCircle(x, y + 270, 8,  0.3f, 1.0f, 0.3f);          // Glow
-
-    // Small highlight/reflection on each light
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.4f);
-    rdrawCircle(x - 4, y + 265, 5, 1.0f, 1.0f, 1.0f);   // Green highlight
-    rdrawCircle(x - 4, y + 235, 5, 1.0f, 1.0f, 1.0f);   // Yellow
-    rdrawCircle(x - 4, y + 205, 5, 1.0f, 1.0f, 1.0f);   // Red
-    glDisable(GL_BLEND);
+    // Red
+    rdrawCircle(x, y + 115, 6, 0.9f, 0.1f, 0.1f);
+    // Yellow
+    rdrawCircle(x, y + 135, 6, 0.9f, 0.7f, 0.1f);
+    // Green
+    rdrawCircle(x, y + 155, 6, 0.1f, 0.8f, 0.1f);
 }
+
 void rdrawRoadAndFootpath() {
+
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     glViewport(0, 0, 1600, 900);
@@ -464,6 +452,7 @@ void rdrawRoadAndFootpath() {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
+
 
     /* ========== DYNAMIC SKY WITH RAIN EFFECT ========== */
     // Update sky brightness based on rain
@@ -878,8 +867,9 @@ void rdrawRoadAndFootpath() {
     glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 
     // Traffic lights
-    rdrawTrafficLight(450, 400);
-    rdrawTrafficLight(1150, 400);
+
+
+
 }
 
 //======================Second road================//
@@ -942,6 +932,7 @@ void rdrawSecondRoad() {
         glVertex2f(x + 30, roadY + 60);
         glEnd();
     }
+    rdrawTrafficLight(450, 400);
 
     // Traffic arrows
    /* glColor3f(0.95f, 0.95f, 1.0f);
@@ -1062,6 +1053,8 @@ void rdrawSecondRoad() {
 }
 
 void rdrawThirdRoad() {
+
+    rdrawTrafficLight(1150, 400);
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     glViewport(0, 0, 1600, 900);
