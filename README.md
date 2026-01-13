@@ -47,6 +47,15 @@ Experience the vibrant energy of Bangladesh's capital with this detailed urban s
 - Automatic umbrella deployment during rain
 - Pedestrians on multiple sidewalks
 - Natural crowd distribution
+###  Screenshot
+**Day View**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/eb95ba87-6037-4bdb-86e7-d1e77fed8cde" />
+**Night view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/222df705-4fa7-4d65-85e5-74ab681f0332" />
+**Rain + Day view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d1636ba6-3b92-4f79-ad24-c3fe34216233" />
+**Rain + Night view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/40c09627-4263-44b1-ba80-ed03117eba25" />
 
 ### 🏖️ Scene 2: Beach Landscape
 
