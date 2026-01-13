@@ -88,6 +88,12 @@ float planeY = 750.0f;            // High in the sky (adjust between 650–820)
 float planeSpeed = 3.2f;          // Quite fast – feels like a real plane
 bool planeVisible = true;         // You can toggle this if you want
 
+//=======================================Abir=====================
+
+float boatPosX  = -900.0f;
+float cloudPosX = 0.0f;
+bool  moveCloud = false;
+
 /* ================= COMMON UTILS ================= */
 
 void rdrawRectangle(float x, float y, float w, float h, float r, float g, float b) {
@@ -3800,34 +3806,11 @@ if (isRaining) {
 }
 
 
-void terminal() {
-    cout << "========================================" << endl;
-    cout << "    DHAKA CITY SIMULATION - OpenGL     " << endl;
-    cout << "========================================" << endl;
-    cout << "Created by: Rashedul Alam" << endl;
-    cout << "========================================" << endl;
-    cout << endl;
-    cout << "CONTROLS:" << endl;
-    cout << "  N or n  -> Switch to Night Mode" << endl;
-    cout << "  D or d  -> Switch to Day Mode" << endl;
-    cout << "  R or r  -> Toggle Rain ON/OFF" << endl;  // Added this line
-    cout << "  ESC     -> Exit Program" << endl;
-    cout << endl;
-    cout << "FEATURES:" << endl;
-    cout << "  - Animated Metro Train with Station" << endl;
-    cout << "  - Moving Vehicles on 3 Roads" << endl;
-    cout << "  - Walking People with Umbrellas in Rain" << endl;  // Updated
-    cout << "  - Day/Night Cycle (Auto: 20 seconds)" << endl;
-    cout << "  - Street Lights (Glow at Night)" << endl;
-    cout << "  - Building Lights (Lit at Night)" << endl;
-    cout << "  - Dynamic Rain Effect" << endl;  // Added
-    cout << endl;
-    cout << "========================================" << endl;
-    cout << "Program Started. Enjoy the simulation!" << endl;
-    cout << "========================================" << endl;
-    cout << endl;
-}
-/*===========================Partho=============================*/
+
+/*===========================Partho=============================
+                             partho
+
+================================================================*/
 
 
 
@@ -4583,7 +4566,6 @@ void pspecialKeys(int key, int x, int y){
             break;
     }
 }
-
 void pmouse(int key, int state, int x, int y){
     if (key == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         animate = true;
@@ -4594,6 +4576,1388 @@ void pmouse(int key, int state, int x, int y){
     }
 }
 
+
+/* ==============================abir=======================================*/
+void drawCircle(float cx, float cy, float r, int num_segments)
+{
+    glBegin(GL_TRIANGLE_FAN);
+    for (int i = 0; i <= num_segments; i++)
+    {
+        float theta = 2.0f * 3.1415926f * i / num_segments;
+        float x = r * cosf(theta);
+        float y = r * sinf(theta);
+        glVertex2f(cx + x, cy + y);
+    }
+    glEnd();
+}
+void displayVillageScene3()
+{
+    //glClear(GL_COLOR_BUFFER_BIT);
+    // SKY
+
+    glBegin(GL_QUADS);
+    glColor3f(0.5f, 0.8f, 1.0f);  // Light blue at top
+    glVertex2f(0, 440);
+    glVertex2f(1200, 440);
+    glColor3f(0.2f, 0.4f, 0.8f);  // Dark blue at bottom
+    glVertex2f(1200, 750);
+    glVertex2f(0, 750);
+    glEnd();
+
+    // SUN
+    glColor3f(1.0f, 1.0f, 0.0f);
+    drawCircle(1050, 650, 45, 80);
+
+    // CLOUDS
+    glPushMatrix();
+    glTranslatef(cloudPosX, 0.0f, 0.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    drawCircle(225, 625, 42, 70);
+    drawCircle(270, 625, 56, 70);
+    drawCircle(330, 625, 42, 70);
+
+
+    drawCircle(150, 550, 30, 70);
+    drawCircle(190, 550, 40, 70);
+    drawCircle(230, 550, 30, 70);
+
+
+    drawCircle(750, 700, 35, 70);
+    drawCircle(790, 700, 45, 70);
+    drawCircle(840, 700, 35, 70);
+
+
+    drawCircle(900, 650, 35, 70);
+    drawCircle(945, 650, 50, 70);
+    drawCircle(1005, 650, 35, 70);
+
+    glPopMatrix();
+
+
+    // FIELD
+
+    glBegin(GL_QUADS);
+    glColor3f(0.5f, 0.8f, 0.5f);
+    glVertex2f(0, 187);//187
+    glVertex2f(1200, 187);
+    glColor3f(0.3f, 0.6f, 0.3f);  // Medium green
+    glVertex2f(1200, 440);//375
+    glVertex2f(0, 440);
+    glEnd();
+
+
+    // BUSHES (behind fence)
+    glColor3f(0.0f, 0.5f, 0.0f);  // dark green
+    drawCircle(920, 460, 35, 50);
+    drawCircle(960, 470, 60, 50);
+    drawCircle(1000, 480, 55, 50);
+    drawCircle(1040, 470, 60, 50);
+    drawCircle(1080, 465, 55, 50);
+    drawCircle(1120, 470, 60, 50);
+    drawCircle(1160, 480, 55, 50);
+
+    glColor3f(0.2f, 0.4f, 0.0f);
+    glBegin(GL_POLYGON);
+    glVertex2f(1200,400);
+    glVertex2f(1200,440);
+    glVertex2f(900,440);
+    glVertex2f(900,400);
+    glEnd();
+
+    // FENCE (right side)
+
+    glColor3f(0.6f, 0.3f, 0.0f); // brown color
+    glLineWidth(6.0f);           // thick fence rails
+    glBegin(GL_LINES);
+    // Horizontal rails
+    glVertex2f(900, 400);
+    glVertex2f(1200, 400);
+    glVertex2f(900, 440);
+    glVertex2f(1200, 440);
+    glVertex2f(900, 460);
+    glVertex2f(1200, 460);
+    // Vertical posts
+    for (int x = 900; x <= 1200; x += 50)
+    {
+        glVertex2f(x, 400);
+        glVertex2f(x, 460);
+    }
+    glEnd();
+
+
+
+    // HAY inside the cart
+
+    glColor3f(0.93f, 0.79f, 0.25f); // golden yellow hay color
+    glBegin(GL_POLYGON);
+    glVertex2f(885, 420); // left top near cart
+    glVertex2f(910, 450);
+    glVertex2f(940, 460);
+    glVertex2f(970, 455);
+    glVertex2f(1000, 470);
+    glVertex2f(1040, 460);
+    glVertex2f(1080, 465);
+    glVertex2f(1110, 450);
+    glVertex2f(1145, 420); // right end of cart
+    glVertex2f(880, 420);  // close back to start
+    glEnd();
+
+// Optional: hay edges (lines to look like straws sticking out)
+    glColor3f(0.8f, 0.6f, 0.1f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    glVertex2f(900, 450);
+    glVertex2f(890, 470);
+    glVertex2f(950, 460);
+    glVertex2f(945, 480);
+    glVertex2f(1000, 470);
+    glVertex2f(1005, 490);
+    glVertex2f(1080, 465);
+    glVertex2f(1095, 485);
+    glEnd();
+//hay square
+    glColor3f(0.8f, 0.6f, 0.1f);
+    glBegin(GL_POLYGON);
+    glVertex2f(1145, 350); // left top near cart
+    glVertex2f(1145, 420);
+    glVertex2f(885, 420);
+    glVertex2f(885,350);
+
+    glEnd();
+
+
+    // BULLOCK CART (wooden style, slim wheel, line body)
+
+
+    // Cart horizontal bars (long wide lines)
+    glLineWidth(12.0f);
+    glColor3f(0.36f, 0.25f, 0.20f); // dark brown
+    glBegin(GL_LINES);
+    glVertex2f(880, 420);//
+    glVertex2f(1180, 420); // top bar
+    glVertex2f(880, 385);
+    glVertex2f(1150, 385); // middle bar
+    glVertex2f(880, 350);
+    glVertex2f(1150, 350); // bottom bar
+    glEnd();
+
+    // Vertical posts of the cart
+    glLineWidth(8.0f);
+    glBegin(GL_LINES);
+    for (int x = 900; x <= 1120; x += 50)
+    {
+        glVertex2f(x, 350);
+        glVertex2f(x, 420);
+    }
+    glEnd();
+
+    // Slim wooden wheel (outer rim only)
+    glLineWidth(10.0f);
+    glColor3f(0.36f, 0.25f, 0.20f); // dark brown
+    glBegin(GL_LINE_LOOP);
+    for (int angle = 0; angle < 360; angle++)
+    {
+        float x = 950 + 35 * cos(angle * M_PI / 180.0);
+        float y = 340 + 35 * sin(angle * M_PI / 180.0);
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    // Wheel spokes
+    glLineWidth(4.0f);
+    glBegin(GL_LINES);
+    for (int angle = 0; angle < 360; angle += 30)
+    {
+        float x = 950 + 35 * cos(angle * M_PI / 180.0);
+        float y = 340 + 35 * sin(angle * M_PI / 180.0);
+        glVertex2f(950, 340);
+        glVertex2f(x, y);
+    }
+    glEnd();
+
+    // Cart handles (front sticks to tie bulls)
+    glLineWidth(10.0f);
+    glBegin(GL_LINES);
+    glVertex2f(1110, 305);
+    glVertex2f(1120, 350);
+
+    glVertex2f(1140, 305);
+    glVertex2f(1120, 350);
+    glEnd();
+
+
+
+    // RIVER gradient: deep blue (bottom) to lighter blue (top)
+    glBegin(GL_QUADS);
+    glColor3f(0.0f, 0.3f, 0.7f);  // Darker blue at bottom
+    glVertex2f(0, 0);
+    glVertex2f(1200, 0);
+    glColor3f(0.3f, 0.6f, 1.0f);  // Lighter blue at top
+    glVertex2f(1200, 300);
+    glVertex2f(0, 300);
+    glEnd();
+
+
+
+    // TREE 1
+    glColor3f(0.55f, 0.27f, 0.07f);
+    glBegin(GL_QUADS);
+    glVertex2f(30,425);
+    glVertex2f(30,562.5);
+    glVertex2f(60,562.5);
+    glVertex2f(60,425);
+    glEnd();
+    //glColor3f(0.0f, 0.6f, 0.0f);
+    glColor3f(0.0f, 0.27f, 0.13f);
+    drawCircle(30,587.5, 56, 70);
+    drawCircle(120,587.5, 50, 70);
+    drawCircle(75,650, 70, 70);
+    drawCircle(15,675,60, 70);
+
+
+
+// HOUSE 2
+
+
+// top front part
+    glBegin(GL_POLYGON);
+    glColor3f(0.7f, 0.1f, 0.1f);
+    glVertex2f(660,515);
+    glColor3f(0.9f, 0.3f, 0.3f);
+    glVertex2f(600,575);
+    glVertex2f(375,575);
+    glVertex2f(375,515);
+    glEnd();
+
+// upper house
+    glBegin(GL_POLYGON);
+    glColor3f(0.9f, 0.5f, 0.5f);
+    glVertex2f(495,575);
+    glColor3f(1.0f, 0.7f, 0.6f);
+    glVertex2f(495,625);
+    glVertex2f(330,625);
+    glVertex2f(375,575);
+    glEnd();
+
+    // Side lines for upper house
+    glColor3f(0.1f, 0.1f, 0.1f);  // Dark color
+    glLineWidth(5.0f);             // Slightly wide
+
+    glBegin(GL_LINES);
+// Vertical line (right side of upper house)
+    glVertex2f(495+80, 575);
+    glVertex2f(495+80, 610);
+
+// Horizontal line (top side of upper house)
+    glVertex2f(495+80, 610);
+    glVertex2f(330+165, 610);
+
+// vertical line (left side of upper house)
+    glVertex2f(330+165, 575);
+    glVertex2f(330+165, 610);
+
+    glVertex2f(330+175, 575);
+    glVertex2f(330+175, 610);
+
+    glVertex2f(330+185, 575);
+    glVertex2f(330+185, 610);
+
+    glVertex2f(330+195, 575);
+    glVertex2f(330+195, 610);
+
+
+    glVertex2f(330+205, 575);
+    glVertex2f(330+205, 610);
+
+    glVertex2f(330+215, 575);
+    glVertex2f(330+215, 610);
+
+    glVertex2f(330+225, 575);
+    glVertex2f(330+225, 610);
+
+    glVertex2f(330+235, 575);
+    glVertex2f(330+235, 610);
+
+    glVertex2f(330+245, 575);
+    glVertex2f(330+245, 610);
+
+
+    glEnd();
+
+
+
+
+// roof
+    glBegin(GL_POLYGON);
+    glColor3f(0.6f, 0.0f, 0.0f);
+    glVertex2f(510,625);
+    glColor3f(0.9f, 0.2f, 0.2f);
+    glVertex2f(480,662.5);
+    glVertex2f(315,662.5);
+    glVertex2f(300,640);
+    glVertex2f(315,640);
+    glVertex2f(330,625);
+    glEnd();
+
+// house body
+    glBegin(GL_POLYGON);
+    glColor3f(0.9f, 0.6f, 0.4f);
+    glVertex2f(640,450);
+    glVertex2f(640,515);
+    glColor3f(1.0f, 0.85f, 0.65f);
+    glVertex2f(375,515);
+    glVertex2f(375,450);
+    glEnd();
+
+// house entry
+    glBegin(GL_POLYGON);
+    glColor3f(0.4f, 0.2f, 0.1f);
+    glVertex2f(660,437.5);
+    glVertex2f(660,450);
+    glVertex2f(375,450);
+    glVertex2f(375,437.5);
+    glEnd();
+
+// door
+    glBegin(GL_POLYGON);
+    glColor3f(0.3f, 0.15f, 0.05f);
+    glVertex2f(555,450);
+    glVertex2f(555,500);
+    glVertex2f(465,500);
+    glVertex2f(465,450);
+    glEnd();
+// door split
+    glColor3f(0.0f,0.0f,0.0f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    glVertex2f(510,450);
+    glVertex2f(510,500);
+    glEnd();
+// handles
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(500,475);
+    glVertex2f(520,475);
+    glEnd();
+
+// window 1
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(615,462.5);
+    glVertex2f(615,487.5);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(585,487.5);
+    glVertex2f(585,462.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(615,462.5);
+    glVertex2f(615,487.5);
+    glVertex2f(585,487.5);
+    glVertex2f(585,462.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(600,462.5);
+    glVertex2f(600,487.5);
+    glEnd();
+
+// window 2
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(435,462.5);
+    glVertex2f(435,487.5);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(405,487.5);
+    glVertex2f(405,462.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(435,462.5);
+    glVertex2f(435,487.5);
+    glVertex2f(405,487.5);
+    glVertex2f(405,462.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(420,462.5);
+    glVertex2f(420,487.5);
+    glEnd();
+
+// upper window 1
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(465,587.5);
+    glVertex2f(465,612.5);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(435,612.5);
+    glVertex2f(435,587.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(465,587.5);
+    glVertex2f(465,612.5);
+    glVertex2f(435,612.5);
+    glVertex2f(435,587.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(450,587.5);
+    glVertex2f(450,612.5);
+    glEnd();
+
+// upper window 2
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(390,587.5);
+    glVertex2f(390,612.5);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(360,612.5);
+    glVertex2f(360,587.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(390,587.5);
+    glVertex2f(390,612.5);
+    glVertex2f(360,612.5);
+    glVertex2f(360,587.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(375,587.5);
+    glVertex2f(375,612.5);
+    glEnd();
+
+
+
+// HOUSE 1
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.9f, 0.5f, 0.3f);
+    glVertex2f(375, 437.5);
+    glVertex2f(375,575);
+    glColor3f(0.7f, 0.3f, 0.2f);
+    glVertex2f(315,637.5);
+    glVertex2f(195,637.5);
+    glVertex2f(150,575);
+    glVertex2f(75,575);
+    glVertex2f(75,437.5);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.6f);
+    glVertex2f(375, 437.5);
+    glVertex2f(375,562.5);
+    glVertex2f(315,625);
+    glColor3f(0.85f, 0.55f, 0.3f);
+    glVertex2f(195,625);
+    glVertex2f(150,562.5);
+    glVertex2f(90,562.5);
+    glVertex2f(90,437.5);
+    glEnd();
+
+
+
+// Door
+    glBegin(GL_POLYGON);
+    glColor3f(0.3f, 0.15f, 0.05f);
+    glVertex2f(315, 437.5);
+    glVertex2f(315,512.5);
+    glVertex2f(270,512.5);
+    glVertex2f(270,437.5);
+    glEnd();
+// door split
+    glColor3f(0.0f,0.0f,0.0f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    glVertex2f(292.5,437.5);
+    glVertex2f(292.5,512.5);
+    glEnd();
+// handles
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+    glVertex2f(285,475);
+    glVertex2f(300,475);
+    glEnd();
+
+// Window 1
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(165, 462.5);
+    glVertex2f(165,515);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(120,515);
+    glVertex2f(120,462.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(165,462.5);
+    glVertex2f(165,515);
+    glVertex2f(120,515);
+    glVertex2f(120,462.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(142.5,462.5);
+    glVertex2f(142.5,515);
+    glEnd();
+
+// Window 2
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(240, 462.5);
+    glVertex2f(240,515);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(195,515);
+    glVertex2f(195,462.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(240,462.5);
+    glVertex2f(240,515);
+    glVertex2f(195,515);
+    glVertex2f(195,462.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(217.5,462.5);
+    glVertex2f(217.5,515);
+    glEnd();
+
+// Window 3
+    glBegin(GL_POLYGON);
+    glColor3f(0.55f,0.27f,0.07f);
+    glVertex2f(300, 562.5);
+    glVertex2f(300,607.5);
+    glColor3f(0.65f,0.32f,0.10f);
+    glVertex2f(225,607.5);
+    glVertex2f(225,562.5);
+    glEnd();
+// frame
+    glColor3f(0.0f,0.0f,0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(300,562.5);
+    glVertex2f(300,607.5);
+    glVertex2f(225,607.5);
+    glVertex2f(225,562.5);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2f(262.5,562.5);
+    glVertex2f(262.5,607.5);
+    glEnd();
+    // Side lines for upper house
+    glColor3f(0.1f, 0.1f, 0.1f);  // Dark color
+    glLineWidth(3.0f);
+
+    glBegin(GL_LINES);
+    glVertex2f(375, 437.5);
+    glVertex2f(375,565);
+    glEnd();
+
+
+// house entry
+    glBegin(GL_POLYGON);
+    glColor3f(0.5f,0.2f,0.1f);
+    glVertex2f(390,425);
+    glVertex2f(390,440);
+    glVertex2f(55,440);
+    glVertex2f(55,425);
+    glEnd();
+
+
+
+
+
+    // TREE 2
+
+    glColor3f(0.0f, 0.27f, 0.13f);
+    drawCircle(785,590.5, 50, 70);//1
+    drawCircle(75+645,640, 60, 70);//2
+
+    drawCircle(725,585,60, 70);//3
+    drawCircle(585,590.5, 50, 70);//1.1
+    drawCircle(640,570.5, 50, 70);//1.2
+
+    drawCircle(800,650.5,60, 70);//4
+    drawCircle(630,650.5, 70, 70);//5
+    drawCircle(750,680, 70, 70);//6
+
+    drawCircle(670,695,60, 70);//7
+    //glColor3f(1.0f, 0.0f, 0.0f);
+    drawCircle(580,660.5,60, 70);//8
+
+    drawCircle(590,680.5,50, 70);//8
+
+
+
+    glColor3f(0.55f, 0.27f, 0.07f);
+    glBegin(GL_QUADS);
+    glVertex2f(675,425);
+    glVertex2f(675,562.5);
+    glVertex2f(705,562.5);
+    glVertex2f(705,425);
+    glEnd();
+
+    //root
+    glColor3f(0.55f, 0.27f, 0.07f);
+    glBegin(GL_POLYGON);
+    glVertex2f(675,425);//a
+    glVertex2f(630,405);//b
+    glVertex2f(675,410);//c
+    glVertex2f(720,390);//d
+    glVertex2f(705,410);//e
+    glVertex2f(740,415);//f
+    glVertex2f(705,425);//g
+    glEnd();
+
+// grass
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark green (bottom)
+    glVertex2f(645,392.5);//h
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // softer green (top)
+    glVertex2f(625,430);//i
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(655,392.5);//k
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // soft
+    glVertex2f(650,440);//j
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(665,392.5);//l
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // soft
+    glVertex2f(690,430);//m
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(675,392.5);//n
+    glEnd();
+
+    //tree branch
+    glColor3f(0.55f, 0.27f, 0.07f);
+    glBegin(GL_POLYGON);
+    glVertex2f(730,470+50);//d
+    glVertex2f(730,455+50);//c
+    glVertex2f(705,430+50);//a
+    glVertex2f(705,460+50);//b
+    glEnd();
+
+
+// grass2
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark green (bottom)
+    glVertex2f(645+70,392.5+10);//h
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // softer green (top)
+    glVertex2f(625+70,430+10);//i
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(655+70,392.5+10);//k
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // soft
+    glVertex2f(650+70,440+10);//j
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(665+70,392.5+10);//l
+
+    glColor3f(0.0f, 0.55f, 0.0f);   // soft
+    glVertex2f(690+70,430+10);//m
+
+    glColor3f(0.0f, 0.35f, 0.0f);   // dark
+    glVertex2f(675+70,392.5+10);//n
+    glEnd();
+
+
+
+
+
+    //tree branch 2
+    glColor3f(0.36f, 0.16f, 0.09f);
+    drawCircle(730,513.5,8, 70);
+    glColor3f(0.91f, 0.76f, 0.65f);
+    drawCircle(730,513.5,4, 70);
+
+
+
+    //tree branch
+    glColor3f(0.55f, 0.27f, 0.07f);
+
+    glBegin(GL_POLYGON);
+    glVertex2f(705,562.5);//d
+    glVertex2f(730,592.5);//c
+    glVertex2f(715,592.5);//a
+    glVertex2f(690,575);//b
+    glVertex2f(700,625);//d
+    glVertex2f(690,635);//c
+    glVertex2f(675,560);//a
+    glVertex2f(615,620);//b
+    glVertex2f(605,630);//a
+    glVertex2f(675,562.5);//b
+    glEnd();
+
+
+
+
+
+    //Hay hill
+    // HAY HILL (in front of first tree)
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.9f, 0.3f);   // bright yellow (top of hill)
+    glVertex2f(0, 420);            // left bottom
+    glColor3f(0.95f, 0.75f, 0.1f); // golden (bottom side)
+    glVertex2f(160, 420);          // right bottom
+    glColor3f(1.0f, 0.85f, 0.2f);  // yellow-gold (top curve)
+    glVertex2f(150, 480);          // right top
+    glVertex2f(140, 500);          // right top
+    glVertex2f(120, 520);           // left top
+    glVertex2f(100, 540);           // left top
+    glVertex2f(80, 560);           // left top
+    glVertex2f(60, 540);           // left top
+    glVertex2f(40, 520);           // left top
+    glVertex2f(20, 500);
+    glVertex2f(10, 480);
+    //glEnd();
+
+    // Add some hay texture lines (to make it look real)
+    glColor3f(0.85f, 0.65f, 0.05f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    glVertex2f(30, 440);
+    glVertex2f(50, 470);
+    glVertex2f(70, 430);
+    glVertex2f(90, 465);
+    glVertex2f(110, 435);
+    glVertex2f(130, 468);
+    glEnd();
+
+
+
+    //river 1
+
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.3f, 0.7f);  // bottom
+    glVertex2f(809,282);//n
+    glVertex2f(807,327);//m
+    glColor3f(0.3f, 0.6f, 1.0f);  // top
+    glVertex2f(462,305);//f
+    glVertex2f(465,274);//g
+    glEnd();
+
+    glColor3f(0.0f, 0.4f, 0.9f);
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.3f, 0.7f);  // bottom
+    glVertex2f(807,327);//m
+    glVertex2f(900,440);//k
+    glColor3f(0.3f, 0.6f, 1.0f);  // top
+    glVertex2f(490,274);//j
+    glVertex2f(685,337);//h
+    glEnd();
+
+    //soil
+    glColor3f(0.823f, 0.705f, 0.549f);
+    glBegin(GL_POLYGON);
+    glVertex2f(400,265);//g
+    glVertex2f(400,300);//f
+    glVertex2f(0,300);//d
+    glVertex2f(0,265);//e
+    glEnd();
+
+    glColor3f(0.823f, 0.705f, 0.549f);
+    glBegin(GL_POLYGON);
+    glVertex2f(625,300);//i
+    glVertex2f(625,330);//h
+    glVertex2f(400,300);//f
+    glVertex2f(400,265);//g
+    glEnd();
+
+    glColor3f(0.823f, 0.705f, 0.549f);
+    glBegin(GL_POLYGON);
+    glVertex2f(625,300);//i
+    glVertex2f(890,430);//g
+    glVertex2f(900,440);//k
+    glVertex2f(625,330);//h
+
+    glEnd();
+    glColor3f(0.823f, 0.705f, 0.549f);
+    glBegin(GL_POLYGON);
+    glVertex2f(1200,265);//p
+    glVertex2f(1200,300);//o
+    glVertex2f(840,300);//s
+    glVertex2f(807,305);//m
+    glVertex2f(807,265);//n
+    glEnd();
+
+
+    // BOAT
+
+    glPushMatrix();                  // Save current coordinate system
+    glTranslatef(boatPosX, 0.0f, 0); // Move boat along x-axis
+
+    //SAIL (Right side )
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_POLYGON);
+    glVertex2f(630, 125);   // Bottom-left
+    glVertex2f(630, 560);   // Much taller mast height
+    glVertex2f(880, 300);   // Wider outward point
+    glVertex2f(800, 125);   // Bottom-right
+    glEnd();
+
+    //SAIL (Left side)
+    glColor3f(0.9f, 0.9f, 0.9f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(630, 125);   // Bottom-right
+    glVertex2f(630, 560);   // Same tall height as mainsail
+    glVertex2f(400, 125);   // Much farther left for width
+    glEnd();
+
+    // Stick
+    glColor3f(0.3f, 0.15f, 0.05f);
+    glBegin(GL_POLYGON);
+    glVertex2f(625, 125);
+    glVertex2f(635, 125);
+    glVertex2f(635, 580);   // Taller mast
+    glVertex2f(625, 580);
+    glEnd();
+
+    //back body
+    glColor3f(0.0f, 0.2f, 0.1f);
+    glBegin(GL_POLYGON);
+    glVertex2f(855, 100);
+    glVertex2f(910, 125);
+    glVertex2f(345, 125);
+    glVertex2f(390, 100);//365
+    glEnd();
+
+
+    //Human
+    // Head (circle)
+    glColor3f(0.9f, 0.8f, 0.6f);
+    drawCircle(400, 270, 30, 100);
+
+    //hair
+    // Hair (polygon on top of head)
+    glColor3f(0.1f, 0.1f, 0.1f); // Dark black hair
+    glBegin(GL_POLYGON);
+    glVertex2f(370, 280);  // left side of head
+    glVertex2f(430, 280);  // right side of head
+    glVertex2f(440, 300);  // top right
+    glVertex2f(400, 320);  // top middle
+    glVertex2f(360, 300);  // top left
+    glEnd();
+
+    glColor3f(0.1f, 0.1f, 0.1f); // Dark black hair
+    glBegin(GL_POLYGON);
+    glVertex2f(400, 250);  //1
+    glVertex2f(400, 280);  // 2
+    glVertex2f(370, 280);  //3
+    glVertex2f(370, 250);  // 4
+
+    glEnd();
+
+
+    // Eyes (small black circles)
+    glColor3f(0.0f, 0.0f, 0.0f); // Black
+    drawCircle(390, 265, 3, 50); // Left eye
+    drawCircle(410, 265, 3, 50); // Right eye
+
+    // Eyebrows (thin black rectangles/lines above eyes)
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glBegin(GL_POLYGON); // Left eyebrow
+    glVertex2f(383, 273);
+    glVertex2f(397, 273);
+    glVertex2f(397, 276);
+    glVertex2f(383, 276);
+    glEnd();
+
+    glBegin(GL_POLYGON); // Right eyebrow
+    glVertex2f(403, 273);
+    glVertex2f(417, 273);
+    glVertex2f(417, 276);
+    glVertex2f(403, 276);
+    glEnd();
+
+    // Lips (smile shape)
+
+
+    // Lips (just one line)
+    glColor3f(0.8f, 0.2f, 0.2f); // Red lips
+    glBegin(GL_LINES);
+    glVertex2f(420, 250); // left corner
+    glVertex2f(410, 250); // right corner
+    glEnd();
+
+
+
+    // Body (rectangle)
+    glColor3f(0.2f, 0.2f, 0.8f);
+    glBegin(GL_POLYGON);
+    glVertex2f(430, 165);
+    glVertex2f(430, 240);
+    glVertex2f(370, 240);
+    glVertex2f(370, 165);
+    glEnd();
+
+    // Arm
+    glColor3f(0.9f, 0.8f, 0.6f);
+    glBegin(GL_POLYGON);
+    glVertex2f(445, 220-40);
+    glVertex2f(445, 200-30);
+    glVertex2f(380, 200);
+    glVertex2f(380, 215);
+    glEnd();
+
+    // Leg
+    glColor3f(0.3f, 0.3f, 0.3f);
+    glBegin(GL_POLYGON);
+    glVertex2f(490, 100);//1
+    glVertex2f(470, 150);//2
+    glVertex2f(470-30, 170);//3
+    glVertex2f(430-30, 170);//4
+    glVertex2f(400-30, 165);//5
+    glVertex2f(430-70, 130);
+    glVertex2f(410-50, 100);//6
+    glEnd();
+
+    // Oar (long brown rectangle)
+    glColor3f(0.5f, 0.25f, 0.1f);
+    glBegin(GL_POLYGON);
+    glVertex2f(455, 200);
+    glVertex2f(470, 200);
+    glVertex2f(350, 70);
+    glVertex2f(365, 70);
+    glEnd();
+
+// Oar Blade (flat part touching water)
+    glColor3f(0.3f, 0.15f, 0.05f);
+    glBegin(GL_POLYGON);
+    glVertex2f(330, 60);
+    glVertex2f(380, 60);
+    glVertex2f(380, 90);
+    glVertex2f(330, 90);
+    glEnd();
+
+
+
+
+    //boat part
+    glColor3f(0.5f, 0.2f, 0.1f);
+    glBegin(GL_POLYGON);
+    glVertex2f(870, 62.5);
+    glVertex2f(945, 150);
+    glVertex2f(840, 110);
+    glVertex2f(340, 110);//365
+    glVertex2f(390, 62.5);//960
+
+    glEnd();
+
+    glColor3f(0.5f, 0.2f, 0.1f);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(430,95);
+    glVertex2f(300, 150);
+    glVertex2f(350, 100);
+    glEnd();
+
+    glPopMatrix();
+
+
+    //flower
+
+// flower 2
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.9f); // soft pink
+    glVertex2f(75+40,100-40);
+    glVertex2f(150+40,155-40);
+    glColor3f(1.0f, 1.0f, 1.0f); // white
+    glVertex2f(150+40,200-40);
+    glVertex2f(75+40,165-40);
+    glEnd();
+
+// flower 3
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.9f);
+    glVertex2f(75-15,63);
+    glVertex2f(50,120);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex2f(0,125);
+    glVertex2f(30,75);
+    glEnd();
+
+// flower 4
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.9f);
+    glVertex2f(75-15,38);
+    glVertex2f(50,63);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex2f(0,40);
+    glVertex2f(30,50);
+    glEnd();
+
+// flower 1.0
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.9f);
+    glVertex2f(75,100);
+    glVertex2f(150,188-35);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex2f(150,250-50);
+    glVertex2f(75,200-35);
+    glEnd();
+
+// flower 3 (near 255,38)
+    glBegin(GL_POLYGON);
+    glColor3f(1.0f, 0.8f, 0.9f);
+    glVertex2f(255,38);
+    glVertex2f(225,63);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex2f(165,75);
+    glVertex2f(195,40);
+    glEnd();
+
+// grass 1 (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(90,0);
+    glVertex2f(150,125);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(150,115);
+    glVertex2f(120,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(150,125);
+    glVertex2f(210,50);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(150,95);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(0.5f);
+    glBegin(GL_LINES);
+    glVertex2f(120,0);
+    glVertex2f(150,125);
+    glEnd();
+
+// grass 2 (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(90+15,0);
+    glVertex2f(150+15,125);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(150+15+15,115);
+    glVertex2f(120+15,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(150+15,125);
+    glVertex2f(210+15,50);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(150+15,95);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(0.5f);
+    glBegin(GL_LINES);
+    glVertex2f(90+25,0);
+    glVertex2f(150+15,125);
+    glEnd();
+
+// grass 3 (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(90,0+35);
+    glVertex2f(150,125+35);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(150,115+35);
+    glVertex2f(120,0+35);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(150,125+35);
+    glVertex2f(210,50+35);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(150,95+35);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(100,0+35);
+    glVertex2f(150,115+35);
+    glEnd();
+
+// grass 4 (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(90,0);
+    glVertex2f(150-60,125);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(120,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(100,0);
+    glVertex2f(150-60,125);
+    glEnd();
+
+// grass 5 (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(90,0);
+    glVertex2f(150-90,125);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(140,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(100,0);
+    glVertex2f(150-90,125);
+    glEnd();
+
+// grass 6 left (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(70,0);
+    glVertex2f(0,115);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(50,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(10,85);
+    glVertex2f(0,125);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(0,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(78,0);
+    glVertex2f(0,115);
+    glEnd();
+
+// grass 7 (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(90+15,0);
+    glVertex2f(0+15,125);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(50+15,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(90+20,0);
+    glVertex2f(0+15,120);
+    glEnd();
+
+// grass 7 small (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(45,0);
+    glVertex2f(10,25);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(30,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(35,0);
+    glVertex2f(10,25);
+    glEnd();
+
+// grass 8 (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(55,0);
+    glVertex2f(0,55);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(40,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(50,0);
+    glVertex2f(0,55);
+    glEnd();
+
+// grass 9 left (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(70,0);
+    glVertex2f(0,115-35);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(50,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(10,85-20);
+    glVertex2f(0,125-40);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(0,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(10,85-20);
+    glVertex2f(0,125-40);
+    glEnd();
+
+// grass 10 left (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(120,0);
+    glVertex2f(50,170);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(85,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(55,150);
+    glVertex2f(0,130);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(50,170);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(55,150);
+    glVertex2f(0,130);
+    glEnd();
+
+// grass 11 left (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(120-15,0);
+    glVertex2f(50-15,170);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(85-15,0);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(55-15,150-15);
+    glVertex2f(0,130-15);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(50-15,170-15);
+    glEnd();
+
+// grass 12 left (Type A)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.6f, 0.0f);
+    glVertex2f(150,0);
+    glVertex2f(220,130);
+    glColor3f(0.0f, 0.8f, 0.0f);
+    glVertex2f(150-20,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(150,0);
+    glVertex2f(220,130);
+    glEnd();
+
+// grass 13 left (Type B)
+    glBegin(GL_POLYGON);
+    glColor3f(0.0f, 0.5f, 0.0f);
+    glVertex2f(180,0);
+    glVertex2f(230,80);
+    glColor3f(0.1f, 0.7f, 0.1f);
+    glVertex2f(180-20,0);
+    glEnd();
+
+// line
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glLineWidth(1.0f);
+    glBegin(GL_LINES);
+    glVertex2f(180,0);
+    glVertex2f(230,80);
+    glEnd();
+    //glFlush();
+}
+void updateCloud(int value)
+{
+    if (moveCloud)
+    {
+        cloudPosX += 2.0f;   // cloud speed
+        if (cloudPosX > 1200) cloudPosX = -300; // reset clouds when out of screen
+    }
+    glutPostRedisplay();
+   // glutTimerFunc(30, updateCloud, 0);
+}
+
+void initVillage()
+{
+    glClearColor(0.7f, 0.9f, 1.0f, 1.0f);  // background
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, 1000, 0, 600);           // same for both
+}
+void updateBoat(int value)
+{
+    boatPosX += 4.0f;
+    if (boatPosX > 1200)
+    {
+        boatPosX = -200;
+    }
+    glutPostRedisplay();
+    //glutTimerFunc(30, updateBoat, 0);
+}
+
+
+void vkeyboard(unsigned char key, int x, int y)
+{
+    switch (key)
+    {
+    case 'd':  // move clouds right
+        moveCloud = true;
+        break;
+    case 's':  // stop clouds
+        moveCloud = false;
+        break;
+    case 'a':  // step clouds left
+        cloudPosX -= 10;
+        break;
+    }
+    //glutPostRedisplay();
+}
+
+
+
+
+//================================Abir end=============================//
+
+/*==========================Main function================================== */
+
 int currentScene = 0;  // global, only once
 
 void init() {
@@ -4603,24 +5967,36 @@ void init() {
 
 void globalKeyboard(unsigned char key, int x, int y) {
     switch (key) {
-    case '1':
+    case '1':                 // Dhaka
         currentScene = 0;
-        initDhaka();          // just colors, states, NOT projection
+        initDhaka();          // scene-specific states only
         glutPostRedisplay();
         break;
-    case '2':
+
+    case '2':                 // Beach
         currentScene = 1;
-        initBeach();          // just colors, states, NOT projection
+        initBeach();
         glutPostRedisplay();
         break;
+
+    case '3':                 // Village / Boat scene
+        currentScene = 2;
+        initVillage();        // create this: reset boatPosX, cloudPosX, etc.
+        glutPostRedisplay();
+        break;
+
     default:
+        // Route other keys to the active scene’s own keyboard
         if (currentScene == 0)
-            rkeyboard(key, x, y);
-        else
-            pkeyboard(key, x, y);
+            rkeyboard(key, x, y);      // Dhaka keys (day/night, rain, etc.)
+        else if (currentScene == 1)
+            pkeyboard(key, x, y);      // Beach keys
+        else if (currentScene == 2)
+            vkeyboard(key, x, y);      // Village/boat keys (d/s/a)
         break;
     }
 }
+
 
 
 void display() {
@@ -4630,16 +6006,20 @@ void display() {
     glLoadIdentity();
     if (currentScene == 0)
         gluOrtho2D(0, 1000, 0, 600);   // Dhaka
-    else
+    else if (currentScene == 1)
         gluOrtho2D(0, 1000, 0, 600);   // Beach (same size)
+    else
+        gluOrtho2D(0, 1200, 0, 750);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     if (currentScene == 0)
         displayDhaka();
-    else
-        pdisplay();
+    else if (currentScene == 1)
+        pdisplay();          // beach
+    else if (currentScene == 2)
+        displayVillageScene3();
 
     glutSwapBuffers();
 }
@@ -4738,13 +6118,60 @@ void globalTimer(int value) {
             rainOffset += 1.0f;
             if (rainOffset > 100) rainOffset -= 100;
         }
-    } else {
+    } else if (currentScene == 1) {
         // Beach scene updates (ptimer logic)
         ptimer();
+    }
+    else if (currentScene == 2) {
+        // Scene 3 (village/boat) updates
+        updateBoat(0);       // or inline boatPosX logic
+        updateCloud(0);      // or your cloudPosX logic
+        // make sure these functions do NOT call glutTimerFunc again
+        // and only change positions
     }
 
     glutPostRedisplay();
     glutTimerFunc(30, globalTimer, 0);  // Call itself again
+}
+void terminal() {
+    cout << "========================================" << endl;
+    cout << " PORTRAIT OF BANGLADESH - OpenGL Scenes " << endl;
+    cout << "========================================" << endl;
+    cout << "Created by: Rashedul Alam" << endl;
+    cout << "Scenes: Dhaka City, Beach, Village Boat" << endl;
+    cout << "========================================" << endl;
+    cout << endl;
+    cout << "GLOBAL CONTROLS:" << endl;
+    cout << "  1       -> Dhaka City Scene" << endl;
+    cout << "  2       -> Beach Scene" << endl;
+    cout << "  3       -> Village & Boat Scene" << endl;
+    cout << "  ESC     -> Exit Program" << endl;
+    cout << endl;
+    cout << "DHAKA SCENE:" << endl;
+    cout << "  N / n   -> Night Mode" << endl;
+    cout << "  D / d   -> Day Mode" << endl;
+    cout << "  R / r   -> Toggle Rain ON/OFF" << endl;
+    cout << "  Auto    -> Day/Night cycle (~20s)" << endl;
+    cout << endl;
+    cout << "BEACH SCENE:" << endl;
+    cout << "  Scene-specific keys (waves, sun, etc.)" << endl;
+    cout << endl;
+    cout << "VILLAGE & BOAT SCENE:" << endl;
+    cout << "  D       -> Move clouds right" << endl;
+    cout << "  S       -> Stop clouds" << endl;
+    cout << "  A       -> Step clouds left" << endl;
+    cout << endl;
+    cout << "FEATURES:" << endl;
+    cout << "  - Animated metro train with station" << endl;
+    cout << "  - Moving vehicles on 3 roads" << endl;
+    cout << "  - Walking people with umbrellas in rain" << endl;
+    cout << "  - Beach environment with animation" << endl;
+    cout << "  - Village river, boat and bullock cart" << endl;
+    cout << "  - Dynamic day/night and rain effects" << endl;
+    cout << "========================================" << endl;
+    cout << "Program Started. Enjoy the simulation!" << endl;
+    cout << "========================================" << endl;
+    cout << endl;
 }
 
 int main(int argc, char** argv) {
@@ -4752,7 +6179,9 @@ int main(int argc, char** argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1000, 600);
 
-    glutCreateWindow("Dhaka & Beach");
+    terminal();
+    glutCreateWindow("Portrait of Bangladesh");
+
 
     initDhaka();
     glutDisplayFunc(display);
@@ -4762,6 +6191,7 @@ int main(int argc, char** argv) {
     glutTimerFunc(0, globalTimer, 0);
 
     glutMainLoop();
+
     return 0;
 }
 
