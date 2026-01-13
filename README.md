@@ -78,6 +78,16 @@ Immerse yourself in the tranquil beauty of Bangladesh's coastline:
 - Sun/Moon system with keyboard-controlled positioning
 - Smooth day/night transitions
 - Rain overlay when weather is enabled
+###  Screenshot
+**Day View**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/43ca4370-f6eb-461d-ad29-7462d6e47d3a" />
+**Night view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/c73e2ada-d2d6-4428-ade2-af0b69998302" />
+**Rain + Day view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8912da7e-264c-4e2b-9ab8-b62c24cf57e0" />
+**Rain + Night view**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/437e2c2c-ed8b-4067-aa6f-28a5cf5a771a" />
+
 
 ### 🌾 Scene 3: Village & River
 
@@ -113,6 +123,9 @@ Discover the peaceful countryside of rural Bangladesh:
 - Moving clouds across the sky (toggle control)
 - Natural cloud patterns
 - Atmospheric perspective
+###  Screenshot
+**Day View**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4d25f2ca-72cb-43d4-a787-5dc0dc9b1ad3" />
 
 ## 🎮 Controls
 
