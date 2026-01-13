@@ -4477,7 +4477,7 @@ void pdisplay()
 void ptimer(){
     // Beach animation update
     if(animate){
-        boat_x -= 0.05 * animation_speed;
+        boat_x -= 0.90 * animation_speed;
         if(boat_x < -800) boat_x = 600;
 
         cloud_x1 += 0.05 * animation_speed;
@@ -4490,8 +4490,8 @@ void ptimer(){
         if(cloud_x3 > 1100) cloud_x3 = -350;
         if(cloud_x4 > 1100) cloud_x4 = -400;
 
-        bird_x1 += 0.2 * animation_speed;
-        bird_y1 += 0.05 * sin(bird_x1 * 0.05);
+        bird_x1 += 0.9 * animation_speed;
+        bird_y1 += 0.09 * sin(bird_x1 * 0.05);
         if(bird_x1 > 1100) {
             bird_x1 = -50;
             bird_y1 = 400 + (rand() % 50);
@@ -4535,9 +4535,9 @@ void pkeyboard(unsigned char key, int x, int y){
             isRaining = !isRaining;
             glutPostRedisplay();
             break;
-        case '+':
+        case 'm':
         case '=': // Speed up
-            animation_speed += 0.2;
+            animation_speed += 1.2;
             if(animation_speed > 3.0) animation_speed = 3.0;
             break;
         case '-':
@@ -4747,7 +4747,6 @@ void globalTimer(int value) {
     glutTimerFunc(30, globalTimer, 0);  // Call itself again
 }
 
-// Modify main() function
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -4766,4 +4765,4 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-// You can remove the old rtimer() and globalIdle() functions
+
