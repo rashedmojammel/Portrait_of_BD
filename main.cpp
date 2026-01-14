@@ -67,11 +67,24 @@ float vehicleScale = 1.4f;
 
 
 // Rain control
-bool isRaining = false;          // toggle with key 'r'
-float rainSpeed = 18.0f;         // how fast rain falls
-float rainAngle = -35.0f;        // slant (negative = left to right)
-float rainDensity = 0.7f;        // 0.1 = light rain, 1.0 = heavy
-float rainOffset = 0.0f;         // for animation
+// Dhaka scene rain
+bool dhakaIsRaining = false;
+bool dhakaRainSoundPlaying = false;
+float dhakaRainOffset = 0.0f;
+float dhakaRainSpeed = 18.0f;
+float dhakaRainDensity = 0.7f;
+
+// Beach scene rain
+bool beachIsRaining = false;
+bool beachRainSoundPlaying = false;
+float beachRainOffset = 0.0f;
+float beachRainSpeed = 2.0f;
+float beachRainDensity = 0.5f;
+
+ float rainDensity = 0.7f;
+ float rainoffset = 0.0f;
+ float rainpeed = 18.0f;
+      // for animation
 
 bool rainSoundPlaying = false;
 
@@ -155,11 +168,19 @@ void rkeyboard(unsigned char key, int x, int y) {
             isNight = false;
             glutPostRedisplay(); // Immediately redraw with day mode
             break;
-        case 'r': case 'R':
-            isRaining = !isRaining;
-            if (isRaining) cout << "Rain started!\n";
-            else cout << "Rain stopped.\n";
-            break;
+            case 'r':
+            case 'R':
+    dhakaIsRaining = !dhakaIsRaining;
+    if (!dhakaIsRaining) {
+        // ensure sound stopped when user turns off rain
+        if (dhakaRainSoundPlaying) {
+            PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+            dhakaRainSoundPlaying = false;
+        }
+    }
+    glutPostRedisplay();
+    break;
+
         case 27: exit(0);// ESC key to exit (optional)
             exit(0);
             break;
@@ -196,56 +217,48 @@ void rdrawStreetLight(float x, float y) {
 
 
 void rdrawRain() {
-    if (!isRaining) {
-        // Stop rain sound when rain stops
-        if (rainSoundPlaying) {
-           // PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC |SND_LOOP);  // Play metro sound once
-            rainSoundPlaying = false;
+    if (!dhakaIsRaining) {
+        if (dhakaRainSoundPlaying) {
+            PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+            dhakaRainSoundPlaying = false;
         }
         return;
     }
 
-    // Start rain sound when rain begins
-    if (!rainSoundPlaying) {
-       // PlaySound(TEXT("RainMetro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-        rainSoundPlaying = true;
+    if (!dhakaRainSoundPlaying) {
+        PlaySound(TEXT("RainMetro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+        dhakaRainSoundPlaying = true;
     }
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // === 1. Natural rain opacity ===
-    float baseAlpha = 0.12f + rainDensity * 0.28f;
+    // 1. Natural rain opacity
+    float baseAlpha = 0.12f + dhakaRainDensity * 0.28f;
 
-    // === 2. High drop count for realistic density ===
-    int rainCount = (int)(3500 * rainDensity);
+    // 2. High drop count for realistic density
+    int rainCount = (int)(3500 * dhakaRainDensity);
 
     for (int i = 0; i < rainCount; i++) {
-        // === 3. Consistent random distribution per drop ===
-        unsigned int seed = i * 48271 + (int)(rainOffset * 50);
+        unsigned int seed = i * 48271 + (int)(dhakaRainOffset * 50);
         float x = (float)((seed * 2654435761u) % 2000) - 100.0f;
         float startY = (float)((seed * 1103515245u) % 1400) - 200.0f;
 
-        // === 4. Different fall speeds create depth illusion ===
         float depthSpeed = 0.7f + (float)((seed * 196314165u) % 100) / 125.0f;
-        float animY = fmod(startY + rainOffset * rainSpeed * depthSpeed, 1500.0f) - 200.0f;
+        float animY = fmod(startY + dhakaRainOffset * dhakaRainSpeed * depthSpeed, 1500.0f) - 200.0f;
 
-        // === 5. Varying drop lengths (realistic motion blur) ===
         float length = 35.0f + (float)((seed * 48271u) % 90);
 
-        // === 6. STRAIGHT DOWN - purely vertical ===
         float x1 = x;
         float y1 = animY;
         float x2 = x;
         float y2 = y1 - length;
 
-        // === 7. Depth-based rendering ===
         float depthFactor = 0.4f + (float)((seed * 1664525u) % 100) / 166.0f;
         float alpha = baseAlpha * depthFactor;
         float thickness = 0.6f + depthFactor * 1.6f;
 
         glLineWidth(thickness);
-
-        // === 8. Realistic rain color ===
         glColor4f(0.82f + depthFactor * 0.16f,
                   0.88f + depthFactor * 0.10f,
                   0.96f + depthFactor * 0.04f,
@@ -259,6 +272,7 @@ void rdrawRain() {
 
     glDisable(GL_BLEND);
 }
+
 void rdrawPineTree(float x, float y) {
     // === Realistic trunk with depth ===
     // Main trunk - darker brown
@@ -386,7 +400,7 @@ void rdrawWalkingPerson(float x, float y, float r, float g, float b) {
     rdrawRectangle(x + 1, y, 7, 15 - legOffset, 0.2f, 0.2f, 0.2f);
 
     // Arms - modified when raining (holding umbrella)
-    if (isRaining) {
+    if (dhakaIsRaining) {
         // Arm holding umbrella up
         rdrawRectangle(x - 10, y + 25, 4, 10, 0.9f, 0.7f, 0.6f);
         rdrawRectangle(x + 7, y + 20, 4, 12, 0.9f, 0.7f, 0.6f);
@@ -397,7 +411,7 @@ void rdrawWalkingPerson(float x, float y, float r, float g, float b) {
     }
 
     // Draw umbrella when raining
-    if (isRaining) {
+    if (dhakaIsRaining) {
         rdrawUmbrella(x, y, r, g, b);  // Use person's shirt color for umbrella
     }
 }
@@ -414,7 +428,7 @@ void rdrawWalkingPersonLeft(float x, float y, float r, float g, float b) {
     rdrawRectangle(x + 1, y, 7, 15 + legOffset, 0.2f, 0.2f, 0.2f);
 
     // Arms - modified when raining
-    if (isRaining) {
+    if (dhakaIsRaining) {
         // Arm holding umbrella up
         rdrawRectangle(x - 10, y + 25, 4, 10, 0.9f, 0.7f, 0.6f);
         rdrawRectangle(x + 7, y + 20, 4, 12, 0.9f, 0.7f, 0.6f);
@@ -425,7 +439,7 @@ void rdrawWalkingPersonLeft(float x, float y, float r, float g, float b) {
     }
 
     // Draw umbrella when raining
-    if (isRaining) {
+    if (dhakaIsRaining) {
         rdrawUmbrella(x, y, r, g, b);  // Use person's shirt color
     }
 }
@@ -463,7 +477,7 @@ void rdrawRoadAndFootpath() {
     /* ========== DYNAMIC SKY WITH RAIN EFFECT ========== */
     // Update sky brightness based on rain
     static float currentSkyBrightness = 1.0f;
-    float targetSkyBrightness = isRaining ? 0.45f : 1.0f;  // Dark when raining
+    float targetSkyBrightness = dhakaIsRaining ? 0.45f : 1.0f;  // Dark when raining
 
     // Smooth transition
     float transitionSpeed = 0.02f;
@@ -499,12 +513,12 @@ void rdrawRoadAndFootpath() {
         glEnd();
 
         // Moon
-        float moonBrightness = isRaining ? 0.3f : 1.0f;  // Dimmer moon when raining
+        float moonBrightness = dhakaIsRaining ? 0.3f : 1.0f;  // Dimmer moon when raining
         rdrawCircle(1300, 800, 50, 0.95f * moonBrightness, 0.95f * moonBrightness, 0.90f * moonBrightness);
         rdrawCircle(1320, 810, 40, 0.98f * moonBrightness, 0.98f * moonBrightness, 0.92f * moonBrightness);
 
         // Moon glow (reduced when raining)
-        if (!isRaining) {
+        if (!dhakaIsRaining) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             glColor4f(1.0f, 0.95f, 0.8f, 0.15f);
@@ -533,10 +547,10 @@ void rdrawRoadAndFootpath() {
 
         // Clouds - darker and grayer when raining
         float cloudY = 750;
-        float cloudBrightness = isRaining ? 0.35f : 1.0f;  // Much darker when raining
-        float cloudR = isRaining ? 0.40f : 0.95f;  // Gray clouds when raining
-        float cloudG = isRaining ? 0.42f : 0.95f;
-        float cloudB = isRaining ? 0.45f : 0.98f;
+        float cloudBrightness = dhakaIsRaining ? 0.35f : 1.0f;  // Much darker when raining
+        float cloudR = dhakaIsRaining ? 0.40f : 0.95f;  // Gray clouds when raining
+        float cloudG = dhakaIsRaining ? 0.42f : 0.95f;
+        float cloudB = dhakaIsRaining ? 0.45f : 0.98f;
 
         for (int i = 0; i < 6; i++) {
             float cx = (100 + i * 300 + cloudOffset);
@@ -554,7 +568,7 @@ void rdrawRoadAndFootpath() {
         }
 
         // Add dark storm clouds when raining
-        if (isRaining) {
+        if (dhakaIsRaining) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -575,7 +589,7 @@ void rdrawRoadAndFootpath() {
     }
 
     /* ========== LAYERED GRASS WITH DEPTH (darker when raining) ========== */
-    float grassBrightness = isRaining ? 0.6f : 1.0f;
+    float grassBrightness = dhakaIsRaining ? 0.6f : 1.0f;
 
     // Far background grass (darker)
     glBegin(GL_QUADS);
@@ -616,7 +630,7 @@ void rdrawRoadAndFootpath() {
     }
 
     /* ========== PREMIUM ASPHALT ROAD WITH 3D EFFECT ========== */
-    float roadBrightness = isRaining ? 0.7f : 1.0f;
+    float roadBrightness = dhakaIsRaining ? 0.7f : 1.0f;
 
     // Road shadow/depth (darker bottom edge)
     rdrawRectangle(0, 278, 1600, 3, 0.08f * roadBrightness, 0.08f * roadBrightness, 0.08f * roadBrightness);
@@ -643,7 +657,7 @@ void rdrawRoadAndFootpath() {
     // Road shine/reflection effect (more visible when raining)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    float shineAlpha = isRaining ? 0.12f : 0.05f;  // More reflective when wet
+    float shineAlpha = dhakaIsRaining ? 0.12f : 0.05f;  // More reflective when wet
     glColor4f(1.0f, 1.0f, 1.0f, shineAlpha);
     for (int x = 0; x < 1600; x += 200) {
         glBegin(GL_QUADS);
@@ -708,7 +722,7 @@ void rdrawRoadAndFootpath() {
     glLineWidth(1.0f);
 
     /* ========== DESIGNER SIDEWALK/FOOTPATH ========== */
-    float sidewalkBrightness = isRaining ? 0.65f : 1.0f;
+    float sidewalkBrightness = dhakaIsRaining ? 0.65f : 1.0f;
 
     // Modern concrete with granite texture
     glBegin(GL_QUADS);
@@ -761,7 +775,7 @@ void rdrawRoadAndFootpath() {
     /* ========== SMART CITY ELEMENTS ========== */
     // Modern bus stop shelter
     int shelterX = 400;
-    float furnitureBrightness = isRaining ? 0.7f : 1.0f;
+    float furnitureBrightness = dhakaIsRaining ? 0.7f : 1.0f;
 
     // Shelter poles
     rdrawRectangle(shelterX, 400, 6, 60, 0.4f * furnitureBrightness, 0.4f * furnitureBrightness, 0.45f * furnitureBrightness);
@@ -3799,10 +3813,10 @@ if (nightTimer >= DAY_NIGHT_CYCLE) {
     nightTimer = 0.0f;
     isNight = !isNight;  // Toggle between day and night
 }
-if (isRaining) {
-        rainOffset += 1.0f;           // controls falling speed
-        if (rainOffset > 100) rainOffset -= 100;
-    }
+if (dhakaIsRaining) {
+    dhakaRainOffset += 1.0f;
+}
+
 }
 
 
@@ -4293,57 +4307,67 @@ void pdrawStarfish(){
 
 ///*** Rain Effect ***///
 void pdrawRain() {
-    if (!isRaining) {
-        // Stop rain sound when rain stops
-        if (rainSoundPlaying) {
-           //sndPlaySound("waves.wav", SND_ASYNC | SND_LOOP);  // Play waves sound back
-            rainSoundPlaying = false;
+    if (!beachIsRaining) {
+        if (beachRainSoundPlaying) {
+            sndPlaySound("waves.wav", SND_ASYNC | SND_LOOP);
+            beachRainSoundPlaying = false;
         }
         return;
     }
-    // Start rain sound when rain begins
-    if (!rainSoundPlaying) {
-       // sndPlaySound("rain.wav", SND_ASYNC | SND_LOOP);
-        rainSoundPlaying = true;
+
+    if (!beachRainSoundPlaying) {
+        sndPlaySound("rain.wav", SND_ASYNC | SND_LOOP);
+        beachRainSoundPlaying = true;
     }
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    // === 1. Natural rain opacity ===
-    float baseAlpha = 0.12f + rainDensity * 0.28f;
-    // === 2. High drop count for realistic density ===
-    int rainCount = (int)(3500 * rainDensity);
+
+    // 1. Natural rain opacity
+    float baseAlpha = 0.12f + beachRainDensity * 0.28f;
+
+    // 2. High drop count for realistic density
+    int rainCount = (int)(3500 * beachRainDensity);
+
     for (int i = 0; i < rainCount; i++) {
-        // === 3. Consistent random distribution per drop ===
-        unsigned int seed = i * 48271 + (int)(rainOffset * 50);
-        float x = (float)((seed * 2654435761u) % 2000) - 100.0f;
-        float startY = (float)((seed * 1103515245u) % 1400) - 200.0f;
-        // === 4. Different fall speeds create depth illusion ===
+        unsigned int seed = i * 48271 + (int)(beachRainOffset * 50);
+        float x       = (float)((seed * 2654435761u) % 2000) - 100.0f;
+        float startY  = (float)((seed * 1103515245u) % 1400) - 200.0f;
+
+        // 4. Different fall speeds
         float depthSpeed = 0.7f + (float)((seed * 196314165u) % 100) / 125.0f;
-        float animY = fmod(startY + rainOffset * rainSpeed * depthSpeed, 1500.0f) - 200.0f;
-        // === 5. Varying drop lengths (realistic motion blur) ===
+        float animY = fmod(startY + beachRainOffset * beachRainSpeed * depthSpeed,
+                           1500.0f) - 200.0f;
+
+        // 5. Drop length
         float length = 35.0f + (float)((seed * 48271u) % 90);
-        // === 6. STRAIGHT DOWN - purely vertical ===
+
         float x1 = x;
         float y1 = animY;
         float x2 = x;
         float y2 = y1 - length;
-        // === 7. Depth-based rendering ===
+
+        // 7. Depth-based rendering
         float depthFactor = 0.4f + (float)((seed * 1664525u) % 100) / 166.0f;
-        float alpha = baseAlpha * depthFactor;
-        float thickness = 0.6f + depthFactor * 1.6f;
+        float alpha       = baseAlpha * depthFactor;
+        float thickness   = 0.6f + depthFactor * 1.6f;
+
         glLineWidth(thickness);
-        // === 8. Realistic rain color ===
+
         glColor4f(0.82f + depthFactor * 0.16f,
                   0.88f + depthFactor * 0.10f,
                   0.96f + depthFactor * 0.04f,
                   alpha);
+
         glBegin(GL_LINES);
             glVertex2f(x1, y1);
             glVertex2f(x2, y2);
         glEnd();
     }
+
     glDisable(GL_BLEND);
 }
+
 
 ///============================================================================================================///
 ///                                          SCENE COMPOSITION
@@ -4489,8 +4513,8 @@ void ptimer(){
     }
 
     // Rain animation (runs independently)
-    if(isRaining){
-        rainOffset += 1.0;
+    if(beachIsRaining){
+        beachRainOffset += 1.0;
     }
 }
 
@@ -4514,10 +4538,11 @@ void pkeyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'r':
-        case 'R': // Toggle Rain
-            isRaining = !isRaining;
-            glutPostRedisplay();
-            break;
+        case 'R':
+    beachIsRaining = !beachIsRaining;
+    glutPostRedisplay();
+    break;
+
         case 'm':
         case '=': // Speed up
             animation_speed += 1.2;
@@ -4538,8 +4563,8 @@ void pkeyboard(unsigned char key, int x, int y){
             sun_x = 350;
             sun_y = 500;
             animation_speed = 1.0;
-            isRaining = false;
-            rainOffset = 0;
+            beachIsRaining = false;
+            beachRainOffset = 0;
             glutPostRedisplay();
             break;
     }
@@ -6030,16 +6055,18 @@ void display() {
 void globalIdle() {
     if (currentScene == 0) {
         // Dhaka animation - rain update only (rtimer handles the rest)
-        if (isRaining) {
-            rainOffset += 1.0f;
-            if (rainOffset > 100) rainOffset -= 100;
+        if (dhakaIsRaining) {
+            dhakaRainOffset += 1.0f;
+            if (dhakaRainOffset > 100.0f)
+                dhakaRainOffset -= 100.0f;
         }
     } else {
         // Beach animation update
-        ptimer();  // This will update all beach animations
+        ptimer();  // This updates all beach animations (including beachRainOffset)
     }
     glutPostRedisplay();
 }
+
 
 /// Add this new timer function that handles both scenes
 void globalTimer(int value) {
@@ -6114,25 +6141,28 @@ void globalTimer(int value) {
             nightTimer = 0.0f;
             isNight = !isNight;
         }
-        if (isRaining) {
-            rainOffset += 1.0f;
-            if (rainOffset > 100) rainOffset -= 100;
+
+        // Dhaka rain update
+        if (dhakaIsRaining) {
+            dhakaRainOffset += 1.0f;
+            if (dhakaRainOffset > 100.0f)
+                dhakaRainOffset -= 100.0f;
         }
+
     } else if (currentScene == 1) {
         // Beach scene updates (ptimer logic)
         ptimer();
     }
     else if (currentScene == 2) {
         // Scene 3 (village/boat) updates
-        updateBoat(0);       // or inline boatPosX logic
-        updateCloud(0);      // or your cloudPosX logic
-        // make sure these functions do NOT call glutTimerFunc again
-        // and only change positions
+        updateBoat(0);
+        updateCloud(0);
     }
 
     glutPostRedisplay();
-    glutTimerFunc(30, globalTimer, 0);  // Call itself again
+    glutTimerFunc(30, globalTimer, 0);
 }
+
 void terminal() {
     cout << "========================================" << endl;
     cout << " PORTRAIT OF BANGLADESH - OpenGL Scenes " << endl;
