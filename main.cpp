@@ -67,24 +67,11 @@ float vehicleScale = 1.4f;
 
 
 // Rain control
-// Dhaka scene rain
-bool dhakaIsRaining = false;
-bool dhakaRainSoundPlaying = false;
-float dhakaRainOffset = 0.0f;
-float dhakaRainSpeed = 18.0f;
-float dhakaRainDensity = 0.7f;
-
-// Beach scene rain
-bool beachIsRaining = false;
-bool beachRainSoundPlaying = false;
-float beachRainOffset = 0.0f;
-float beachRainSpeed = 2.0f;
-float beachRainDensity = 0.5f;
-
- float rainDensity = 0.7f;
- float rainoffset = 0.0f;
- float rainpeed = 18.0f;
-      // for animation
+bool isRaining = false;          // toggle with key 'r'
+float rainSpeed = 18.0f;         // how fast rain falls
+float rainAngle = -35.0f;        // slant (negative = left to right)
+float rainDensity = 0.7f;        // 0.1 = light rain, 1.0 = heavy
+float rainOffset = 0.0f;         // for animation
 
 bool rainSoundPlaying = false;
 
@@ -168,19 +155,11 @@ void rkeyboard(unsigned char key, int x, int y) {
             isNight = false;
             glutPostRedisplay(); // Immediately redraw with day mode
             break;
-            case 'r':
-            case 'R':
-    dhakaIsRaining = !dhakaIsRaining;
-    if (!dhakaIsRaining) {
-        // ensure sound stopped when user turns off rain
-        if (dhakaRainSoundPlaying) {
-            PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-            dhakaRainSoundPlaying = false;
-        }
-    }
-    glutPostRedisplay();
-    break;
-
+        case 'r': case 'R':
+            isRaining = !isRaining;
+            if (isRaining) cout << "Rain started!\n";
+            else cout << "Rain stopped.\n";
+            break;
         case 27: exit(0);// ESC key to exit (optional)
             exit(0);
             break;
@@ -217,48 +196,56 @@ void rdrawStreetLight(float x, float y) {
 
 
 void rdrawRain() {
-    if (!dhakaIsRaining) {
-        if (dhakaRainSoundPlaying) {
-            PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-            dhakaRainSoundPlaying = false;
+    if (!isRaining) {
+        // Stop rain sound when rain stops
+        if (rainSoundPlaying) {
+           // PlaySound(TEXT("metro2.wav"), NULL, SND_FILENAME | SND_ASYNC |SND_LOOP);  // Play metro sound once
+            rainSoundPlaying = false;
         }
         return;
     }
 
-    if (!dhakaRainSoundPlaying) {
-        PlaySound(TEXT("RainMetro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-        dhakaRainSoundPlaying = true;
+    // Start rain sound when rain begins
+    if (!rainSoundPlaying) {
+        //PlaySound(TEXT("RainMetro.wav"), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+        rainSoundPlaying = true;
     }
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // 1. Natural rain opacity
-    float baseAlpha = 0.12f + dhakaRainDensity * 0.28f;
+    // === 1. Natural rain opacity ===
+    float baseAlpha = 0.12f + rainDensity * 0.28f;
 
-    // 2. High drop count for realistic density
-    int rainCount = (int)(3500 * dhakaRainDensity);
+    // === 2. High drop count for realistic density ===
+    int rainCount = (int)(3500 * rainDensity);
 
     for (int i = 0; i < rainCount; i++) {
-        unsigned int seed = i * 48271 + (int)(dhakaRainOffset * 50);
+        // === 3. Consistent random distribution per drop ===
+        unsigned int seed = i * 48271 + (int)(rainOffset * 50);
         float x = (float)((seed * 2654435761u) % 2000) - 100.0f;
         float startY = (float)((seed * 1103515245u) % 1400) - 200.0f;
 
+        // === 4. Different fall speeds create depth illusion ===
         float depthSpeed = 0.7f + (float)((seed * 196314165u) % 100) / 125.0f;
-        float animY = fmod(startY + dhakaRainOffset * dhakaRainSpeed * depthSpeed, 1500.0f) - 200.0f;
+        float animY = fmod(startY + rainOffset * rainSpeed * depthSpeed, 1500.0f) - 200.0f;
 
+        // === 5. Varying drop lengths (realistic motion blur) ===
         float length = 35.0f + (float)((seed * 48271u) % 90);
 
+        // === 6. STRAIGHT DOWN - purely vertical ===
         float x1 = x;
         float y1 = animY;
         float x2 = x;
         float y2 = y1 - length;
 
+        // === 7. Depth-based rendering ===
         float depthFactor = 0.4f + (float)((seed * 1664525u) % 100) / 166.0f;
         float alpha = baseAlpha * depthFactor;
         float thickness = 0.6f + depthFactor * 1.6f;
 
         glLineWidth(thickness);
+
+        // === 8. Realistic rain color ===
         glColor4f(0.82f + depthFactor * 0.16f,
                   0.88f + depthFactor * 0.10f,
                   0.96f + depthFactor * 0.04f,
@@ -272,7 +259,6 @@ void rdrawRain() {
 
     glDisable(GL_BLEND);
 }
-
 void rdrawPineTree(float x, float y) {
     // === Realistic trunk with depth ===
     // Main trunk - darker brown
@@ -400,7 +386,7 @@ void rdrawWalkingPerson(float x, float y, float r, float g, float b) {
     rdrawRectangle(x + 1, y, 7, 15 - legOffset, 0.2f, 0.2f, 0.2f);
 
     // Arms - modified when raining (holding umbrella)
-    if (dhakaIsRaining) {
+    if (isRaining) {
         // Arm holding umbrella up
         rdrawRectangle(x - 10, y + 25, 4, 10, 0.9f, 0.7f, 0.6f);
         rdrawRectangle(x + 7, y + 20, 4, 12, 0.9f, 0.7f, 0.6f);
@@ -411,7 +397,7 @@ void rdrawWalkingPerson(float x, float y, float r, float g, float b) {
     }
 
     // Draw umbrella when raining
-    if (dhakaIsRaining) {
+    if (isRaining) {
         rdrawUmbrella(x, y, r, g, b);  // Use person's shirt color for umbrella
     }
 }
@@ -428,7 +414,7 @@ void rdrawWalkingPersonLeft(float x, float y, float r, float g, float b) {
     rdrawRectangle(x + 1, y, 7, 15 + legOffset, 0.2f, 0.2f, 0.2f);
 
     // Arms - modified when raining
-    if (dhakaIsRaining) {
+    if (isRaining) {
         // Arm holding umbrella up
         rdrawRectangle(x - 10, y + 25, 4, 10, 0.9f, 0.7f, 0.6f);
         rdrawRectangle(x + 7, y + 20, 4, 12, 0.9f, 0.7f, 0.6f);
@@ -439,7 +425,7 @@ void rdrawWalkingPersonLeft(float x, float y, float r, float g, float b) {
     }
 
     // Draw umbrella when raining
-    if (dhakaIsRaining) {
+    if (isRaining) {
         rdrawUmbrella(x, y, r, g, b);  // Use person's shirt color
     }
 }
@@ -477,7 +463,7 @@ void rdrawRoadAndFootpath() {
     /* ========== DYNAMIC SKY WITH RAIN EFFECT ========== */
     // Update sky brightness based on rain
     static float currentSkyBrightness = 1.0f;
-    float targetSkyBrightness = dhakaIsRaining ? 0.45f : 1.0f;  // Dark when raining
+    float targetSkyBrightness = isRaining ? 0.45f : 1.0f;  // Dark when raining
 
     // Smooth transition
     float transitionSpeed = 0.02f;
@@ -513,12 +499,12 @@ void rdrawRoadAndFootpath() {
         glEnd();
 
         // Moon
-        float moonBrightness = dhakaIsRaining ? 0.3f : 1.0f;  // Dimmer moon when raining
+        float moonBrightness = isRaining ? 0.3f : 1.0f;  // Dimmer moon when raining
         rdrawCircle(1300, 800, 50, 0.95f * moonBrightness, 0.95f * moonBrightness, 0.90f * moonBrightness);
         rdrawCircle(1320, 810, 40, 0.98f * moonBrightness, 0.98f * moonBrightness, 0.92f * moonBrightness);
 
         // Moon glow (reduced when raining)
-        if (!dhakaIsRaining) {
+        if (!isRaining) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             glColor4f(1.0f, 0.95f, 0.8f, 0.15f);
@@ -547,10 +533,10 @@ void rdrawRoadAndFootpath() {
 
         // Clouds - darker and grayer when raining
         float cloudY = 750;
-        float cloudBrightness = dhakaIsRaining ? 0.35f : 1.0f;  // Much darker when raining
-        float cloudR = dhakaIsRaining ? 0.40f : 0.95f;  // Gray clouds when raining
-        float cloudG = dhakaIsRaining ? 0.42f : 0.95f;
-        float cloudB = dhakaIsRaining ? 0.45f : 0.98f;
+        float cloudBrightness = isRaining ? 0.35f : 1.0f;  // Much darker when raining
+        float cloudR = isRaining ? 0.40f : 0.95f;  // Gray clouds when raining
+        float cloudG = isRaining ? 0.42f : 0.95f;
+        float cloudB = isRaining ? 0.45f : 0.98f;
 
         for (int i = 0; i < 6; i++) {
             float cx = (100 + i * 300 + cloudOffset);
@@ -568,7 +554,7 @@ void rdrawRoadAndFootpath() {
         }
 
         // Add dark storm clouds when raining
-        if (dhakaIsRaining) {
+        if (isRaining) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -589,7 +575,7 @@ void rdrawRoadAndFootpath() {
     }
 
     /* ========== LAYERED GRASS WITH DEPTH (darker when raining) ========== */
-    float grassBrightness = dhakaIsRaining ? 0.6f : 1.0f;
+    float grassBrightness = isRaining ? 0.6f : 1.0f;
 
     // Far background grass (darker)
     glBegin(GL_QUADS);
@@ -630,7 +616,7 @@ void rdrawRoadAndFootpath() {
     }
 
     /* ========== PREMIUM ASPHALT ROAD WITH 3D EFFECT ========== */
-    float roadBrightness = dhakaIsRaining ? 0.7f : 1.0f;
+    float roadBrightness = isRaining ? 0.7f : 1.0f;
 
     // Road shadow/depth (darker bottom edge)
     rdrawRectangle(0, 278, 1600, 3, 0.08f * roadBrightness, 0.08f * roadBrightness, 0.08f * roadBrightness);
@@ -657,7 +643,7 @@ void rdrawRoadAndFootpath() {
     // Road shine/reflection effect (more visible when raining)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    float shineAlpha = dhakaIsRaining ? 0.12f : 0.05f;  // More reflective when wet
+    float shineAlpha = isRaining ? 0.12f : 0.05f;  // More reflective when wet
     glColor4f(1.0f, 1.0f, 1.0f, shineAlpha);
     for (int x = 0; x < 1600; x += 200) {
         glBegin(GL_QUADS);
@@ -722,7 +708,7 @@ void rdrawRoadAndFootpath() {
     glLineWidth(1.0f);
 
     /* ========== DESIGNER SIDEWALK/FOOTPATH ========== */
-    float sidewalkBrightness = dhakaIsRaining ? 0.65f : 1.0f;
+    float sidewalkBrightness = isRaining ? 0.65f : 1.0f;
 
     // Modern concrete with granite texture
     glBegin(GL_QUADS);
@@ -775,7 +761,7 @@ void rdrawRoadAndFootpath() {
     /* ========== SMART CITY ELEMENTS ========== */
     // Modern bus stop shelter
     int shelterX = 400;
-    float furnitureBrightness = dhakaIsRaining ? 0.7f : 1.0f;
+    float furnitureBrightness = isRaining ? 0.7f : 1.0f;
 
     // Shelter poles
     rdrawRectangle(shelterX, 400, 6, 60, 0.4f * furnitureBrightness, 0.4f * furnitureBrightness, 0.45f * furnitureBrightness);
@@ -3813,10 +3799,10 @@ if (nightTimer >= DAY_NIGHT_CYCLE) {
     nightTimer = 0.0f;
     isNight = !isNight;  // Toggle between day and night
 }
-if (dhakaIsRaining) {
-    dhakaRainOffset += 1.0f;
-}
-
+if (isRaining) {
+        rainOffset += 1.0f;           // controls falling speed
+        if (rainOffset > 100) rainOffset -= 100;
+    }
 }
 
 
@@ -4307,67 +4293,57 @@ void pdrawStarfish(){
 
 ///*** Rain Effect ***///
 void pdrawRain() {
-    if (!beachIsRaining) {
-        if (beachRainSoundPlaying) {
-            sndPlaySound("waves.wav", SND_ASYNC | SND_LOOP);
-            beachRainSoundPlaying = false;
+    if (!isRaining) {
+        // Stop rain sound when rain stops
+        if (rainSoundPlaying) {
+           //sndPlaySound("waves.wav", SND_ASYNC | SND_LOOP);  // Play waves sound back
+            rainSoundPlaying = false;
         }
         return;
     }
-
-    if (!beachRainSoundPlaying) {
-        sndPlaySound("rain.wav", SND_ASYNC | SND_LOOP);
-        beachRainSoundPlaying = true;
+    // Start rain sound when rain begins
+    if (!rainSoundPlaying) {
+       // sndPlaySound("rain.wav", SND_ASYNC | SND_LOOP);
+        rainSoundPlaying = true;
     }
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // 1. Natural rain opacity
-    float baseAlpha = 0.12f + beachRainDensity * 0.28f;
-
-    // 2. High drop count for realistic density
-    int rainCount = (int)(3500 * beachRainDensity);
-
+    // === 1. Natural rain opacity ===
+    float baseAlpha = 0.12f + rainDensity * 0.28f;
+    // === 2. High drop count for realistic density ===
+    int rainCount = (int)(3500 * rainDensity);
     for (int i = 0; i < rainCount; i++) {
-        unsigned int seed = i * 48271 + (int)(beachRainOffset * 50);
-        float x       = (float)((seed * 2654435761u) % 2000) - 100.0f;
-        float startY  = (float)((seed * 1103515245u) % 1400) - 200.0f;
-
-        // 4. Different fall speeds
+        // === 3. Consistent random distribution per drop ===
+        unsigned int seed = i * 48271 + (int)(rainOffset * 50);
+        float x = (float)((seed * 2654435761u) % 2000) - 100.0f;
+        float startY = (float)((seed * 1103515245u) % 1400) - 200.0f;
+        // === 4. Different fall speeds create depth illusion ===
         float depthSpeed = 0.7f + (float)((seed * 196314165u) % 100) / 125.0f;
-        float animY = fmod(startY + beachRainOffset * beachRainSpeed * depthSpeed,
-                           1500.0f) - 200.0f;
-
-        // 5. Drop length
+        float animY = fmod(startY + rainOffset * rainSpeed * depthSpeed, 1500.0f) - 200.0f;
+        // === 5. Varying drop lengths (realistic motion blur) ===
         float length = 35.0f + (float)((seed * 48271u) % 90);
-
+        // === 6. STRAIGHT DOWN - purely vertical ===
         float x1 = x;
         float y1 = animY;
         float x2 = x;
         float y2 = y1 - length;
-
-        // 7. Depth-based rendering
+        // === 7. Depth-based rendering ===
         float depthFactor = 0.4f + (float)((seed * 1664525u) % 100) / 166.0f;
-        float alpha       = baseAlpha * depthFactor;
-        float thickness   = 0.6f + depthFactor * 1.6f;
-
+        float alpha = baseAlpha * depthFactor;
+        float thickness = 0.6f + depthFactor * 1.6f;
         glLineWidth(thickness);
-
+        // === 8. Realistic rain color ===
         glColor4f(0.82f + depthFactor * 0.16f,
                   0.88f + depthFactor * 0.10f,
                   0.96f + depthFactor * 0.04f,
                   alpha);
-
         glBegin(GL_LINES);
             glVertex2f(x1, y1);
             glVertex2f(x2, y2);
         glEnd();
     }
-
     glDisable(GL_BLEND);
 }
-
 
 ///============================================================================================================///
 ///                                          SCENE COMPOSITION
@@ -4513,8 +4489,8 @@ void ptimer(){
     }
 
     // Rain animation (runs independently)
-    if(beachIsRaining){
-        beachRainOffset += 1.0;
+    if(isRaining){
+        rainOffset += 1.0;
     }
 }
 
@@ -4538,11 +4514,10 @@ void pkeyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         case 'r':
-        case 'R':
-    beachIsRaining = !beachIsRaining;
-    glutPostRedisplay();
-    break;
-
+        case 'R': // Toggle Rain
+            isRaining = !isRaining;
+            glutPostRedisplay();
+            break;
         case 'm':
         case '=': // Speed up
             animation_speed += 1.2;
@@ -4563,8 +4538,8 @@ void pkeyboard(unsigned char key, int x, int y){
             sun_x = 350;
             sun_y = 500;
             animation_speed = 1.0;
-            beachIsRaining = false;
-            beachRainOffset = 0;
+            isRaining = false;
+            rainOffset = 0;
             glutPostRedisplay();
             break;
     }
@@ -5981,6 +5956,620 @@ void vkeyboard(unsigned char key, int x, int y)
 
 //================================Abir end=============================//
 
+
+double  r=.2,s=.3;
+int i;
+float  tx=10,bx=10;
+
+
+void initVillage4() {
+    glClearColor(1.0f,1.0f,1.0f,1.0f);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-210,210,-220,310,-210,310);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+}
+
+void kcloud(double x, double y)
+{
+
+
+    glBegin(GL_TRIANGLE_FAN);
+        for(i=0;i<360;i++)
+        {
+            x=x+cos((i*3.14)/180)*r;
+            y=y+sin((i*3.14)/180)*r;
+
+            glVertex2d(x,y);
+
+        }
+
+
+    glEnd();
+
+
+
+}
+
+void ksun(double x, double y)
+{
+
+
+    glBegin(GL_TRIANGLE_FAN);
+        for(i=0;i<360;i++)
+        {
+            x=x+cos((i*3.14)/180)*s;
+            y=y+sin((i*3.14)/180)*s;
+
+            glVertex2d(x,y);
+
+        }
+
+
+    glEnd();
+
+
+
+}
+
+// ------------------------------------kfence-------------------------------------------------
+void kfence(int x)
+{
+    glBegin(GL_POLYGON);
+        glColor3ub(184,134,11);
+
+        glVertex2i(190-x,130);
+        glVertex2i(190-x,70);
+        glVertex2i(187-x,70);
+        glVertex2i(187-x,130);
+        glVertex2i(190-x,130);
+
+
+
+    glEnd();
+
+}
+
+void drawVillageScene4() {
+     //glClear(GL_COLOR_BUFFER_BIT);
+//-----------------------sky------------------------------------------------------------------
+    glColor3ub(135,206,250);//light blue
+        glRecti(-200,300,200,100);
+//-----------------------------------field------------------------------
+    glBegin(GL_POLYGON);
+        glColor3ub(0,100,0);//green
+
+        glVertex2i(-200,100);
+        glVertex2i(-100,160);
+        glVertex2i(0,100);
+        glVertex2i(50,70);
+        glVertex2i(100,180);
+        glVertex2i(200,100);
+        glColor3ub(255,215,0);//gold
+        glVertex2i(200,-200);
+
+        glVertex2i(-200,-200);
+        glColor3ub(255,215,0);//gold
+        glVertex2i(-200,100);
+
+    glEnd();
+
+//-------------------ksun-------------------------
+    glColor3ub(255,215,0);
+    ksun(90,250);
+// ------------------------------------kfence--------------------------
+    int x=0;
+    for(int i=0;i<39;i++)
+    {
+        kfence(x);
+        x+=10;
+    }
+
+    glColor3ub(184,134,11);
+    glRecti(-200,120,200,115);
+    glRecti(-200,100,200,95);
+    glRecti(-200,85,200,80);
+
+
+//-------------------------------------TREE------------------------
+    glColor3ub(139,69,19);//
+    glRecti(-20,200,-13,140);
+    glColor3ub(0,100,0);
+    ksun(-30,190);
+    ksun(0,190);
+    ksun(-10,210);
+    ksun(-30,175);
+    ksun(-0,170);
+    glBegin(GL_POLYGON); // Main Tree // first part
+        glColor3ub(139,69,19);//
+        glVertex2i(-170,160);
+        glVertex2i(-168,120);
+        glColor3ub(139,69,19);//
+        glVertex2i(-178,40);
+        glVertex2i(-145,40);
+        glColor3ub(139,69,19);//
+        glVertex2i(-153,120);
+        glVertex2i(-150,160);
+        glVertex2i(-170,160);
+    glEnd();
+    glBegin(GL_POLYGON);  // Main Tree // second part
+        glColor3ub(139,69,19);//
+        glVertex2i(-153,100);
+        glVertex2i(-100,200);
+        glVertex2i(-95,200);
+        glVertex2i(-153,80);
+        glVertex2i(-153,100);
+    glEnd();
+    glBegin(GL_POLYGON);  // Main Tree // third part
+        glColor3ub(139,69,19);//
+        glVertex2i(-170,160);
+        glVertex2i(-185,210);
+        glVertex2i(-190,210);
+        glVertex2i(-168,90);
+        glVertex2i(-170,160);
+
+    glEnd();
+    glBegin(GL_POLYGON);  // Main Tree // fourth part
+        glColor3ub(139,69,19);//
+        glVertex2i(-160,160);
+        glVertex2i(-150,210);
+        glVertex2i(-140,210);
+        glVertex2i(-150,160);
+        glVertex2i(-160,160);
+
+
+    glEnd();
+    glColor3ub(0,128,0);//leaf
+        ksun(-95,200);
+        ksun(-80,180);
+        ksun(-110,180);
+        ksun(-120,200);
+
+        ksun(-150,200);
+        ksun(-130,180);
+        ksun(-125,220);
+        ksun(-140,230);
+
+        ksun(-190,210);
+        ksun(-180,200);
+        ksun(-175,225);
+        ksun(-195,190);
+
+
+//-----------------------------------------------TUBEWELL-----------------------------------------
+
+    glBegin(GL_POLYGON);  // First part
+
+        glColor3ub(0,100,0);//
+        glVertex2i(115,65);
+        glVertex2i(95,5);
+        glVertex2i(145,5);
+        glVertex2i(165,65);
+        glVertex2i(115,65);
+
+    glEnd();
+    glBegin(GL_POLYGON);  // second part
+
+        glColor3ub(143,188,143);//
+        glVertex2i(120,58);
+        glVertex2i(104,13);
+        glVertex2i(140,12);
+        glVertex2i(155,58);
+        glVertex2i(120,58);
+
+    glEnd();
+    glColor3ub(0,0,0);// third part
+        glRecti(95,5,145,-6);
+
+    glBegin(GL_POLYGON);  // fourth  part
+        glColor3ub(0,0,0);//
+        glVertex2i(165,65);
+        glVertex2i(166,55);
+        glVertex2i(145,-6);
+        glVertex2i(145,5);
+        glVertex2i(165,65);
+    glEnd();
+    glBegin(GL_POLYGON);  // tubewell 1st part
+        glColor3ub(184,134,11);
+        glVertex2i(120,85);
+        glVertex2i(120,30);
+        glVertex2i(125,28);
+        glVertex2i(130,30);
+        glVertex2i(130,85);
+        glVertex2i(125,87);
+        glVertex2i(120,85);
+    glEnd();
+    glBegin(GL_POLYGON);  // tubewell second part
+        glColor3ub(255,215,0);//golden rod
+        glVertex2i(120,85);
+        glVertex2i(125,80);
+        glVertex2i(130,85);
+        glVertex2i(125,87);
+        glVertex2i(120,85);
+
+    glEnd();
+    glColor3ub(205,133,63);//golden rod // tubewell third part
+    glRecti(123,100,126,85);
+
+    glBegin(GL_POLYGON);  // tubewell fourth part
+        glColor3ub(139,69,19);//saddle brown
+        glVertex2i(126,100);
+        glVertex2i(128,102);
+        glVertex2i(128,110);
+        glVertex2i(126,113);
+        glVertex2i(124,111);
+        glVertex2i(100,80);
+        glVertex2i(90,70);
+        glVertex2i(90,65);
+        glVertex2i(100,73);
+        glVertex2i(126,100);
+    glEnd();
+    glBegin(GL_POLYGON);  // tubewell 5th part
+        glColor3ub(210,105,30);//golden rod
+        glVertex2i(130,70);
+        glVertex2i(140,70);
+        glVertex2i(140,50);
+        glVertex2i(136,50);
+        glVertex2i(136,60);
+        glVertex2i(130,60);
+        glVertex2i(130,70);
+
+    glEnd();
+    glColor3ub(210,105,30);//golden rod //tubewell last part
+    glRecti(123,29,127,20);
+    glColor3ub(139,69,19);//saddle brown
+    glRecti(118,22,132,14);
+// --------------------------------------- HOUSE one----------------------------
+    glBegin(GL_POLYGON);  // first Part
+        glColor3ub(128,0,0);//gray
+        glVertex2i(-58,115);
+        glVertex2i(-75,145);
+        glVertex2i(-115,150);//point
+        glVertex2i(-90,100);
+        glVertex2i(-62,100);
+        glVertex2i(-58,115);
+
+    glEnd();
+    glBegin(GL_POLYGON);  // second Part
+        glColor3ub(120,0,0);//maroon
+        glVertex2i(-115,150);
+        glVertex2i(-130,100);
+        glVertex2i(-120,100);//point
+        glVertex2i(-108,137);//point
+        glVertex2i(-115,150);
+    glEnd();
+    glBegin(GL_POLYGON);  // third Part
+        glColor3ub(46,139,87);//
+        glVertex2i(-108,137);
+        glVertex2i(-120,100);
+        glVertex2i(-120,45);
+        glVertex2i(-90,40);//point
+        glVertex2i(-90,100);
+        glVertex2i(-108,137);
+    glEnd();
+
+
+    glBegin(GL_POLYGON);  // fourth Part
+        glColor3ub(143,188,143);//
+        glVertex2i(-90,40);
+        glVertex2i(-60,45);
+        glVertex2i(-60,100);
+        glVertex2i(-90,100);
+
+    glEnd();
+    glColor3ub(120,0,0);//maroon // Door One
+        glRecti(-75,80,-65,40);
+    glColor3ub(120,0,0);//maroon // Door One
+        glRecti(-110,90,-100,70);
+    glBegin(GL_POLYGON);  // third Part (lower part 1)
+        glColor3ub(0,0,0);//
+        glVertex2i(-90,40);
+        glVertex2i(-123,45);
+        glVertex2i(-123,35);
+        glVertex2i(-90,30);
+        glVertex2i(-90,40);
+
+    glEnd();
+    glBegin(GL_POLYGON);  // third Part (lower part 2)
+        glColor3ub(0,0,0);//
+        glVertex2i(-90,40);
+        glVertex2i(-55,45);
+        glVertex2i(-55,35);
+        glVertex2i(-90,30);
+        glVertex2i(-90,40);
+
+
+    glEnd();
+
+
+
+
+//-------------------------------------------  HOUSE  two  -------------------------------------------------
+    glBegin(GL_POLYGON);  // First part
+
+        glColor3ub(25,25,112);//midnight blue
+        glVertex2i(-50,140);
+        glVertex2i(0,149);
+        glVertex2i(-12,88);
+        glVertex2i(-65,89);
+        glVertex2i(-50,140);
+    glEnd();
+
+
+
+
+
+    glBegin(GL_POLYGON);  // Second Part
+    glColor3ub(70,130,180);//midnight blue
+        glVertex2i(-60,90);
+        glVertex2i(-60,30);
+        glVertex2i(-10,25);
+        glVertex2i(-10,95);
+    glEnd();
+
+
+//---------------------------------------Door------------------------------------------
+    glColor3ub(25,25,112);//midnight blue
+    glRecti(-45,70,-30,27);
+
+//--------------------------------------------------------------------------
+    glBegin(GL_POLYGON);   // Third part
+    glColor3ub(95,158,160);//midnight blue
+        glVertex2i(-10,25);
+        glVertex2i(18,35);
+        glVertex2i(18,100);
+        glVertex2i(0,148);
+        glVertex2i(-10,100);
+        glVertex2i(-10,25);
+
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3ub(25,25,112);//midnight blue
+        glVertex2i(-1,150);
+        glVertex2i(20,100);
+        glVertex2i(17,90);
+        glVertex2i(-4,140);
+        glVertex2i(-1,150);
+
+    glEnd();
+
+
+    glBegin(GL_POLYGON);  // door
+    glColor3ub(25,25,112);//midnight blue
+        glVertex2i(0,70);
+        glVertex2i(10,73);
+        glVertex2i(10,32);
+        glVertex2i(0,29);
+        glVertex2i(0,70);
+
+
+    glEnd();
+    glBegin(GL_POLYGON);  // (lower part 1)
+        glColor3ub(0,0,0);//
+        glVertex2i(-10,25);
+        glVertex2i(-10,15);
+        glVertex2i(20,27);
+        glVertex2i(20,37);
+        glVertex2i(-10,25);
+
+
+    glEnd();
+    glBegin(GL_POLYGON);  // (lower part 2)
+        glColor3ub(0,0,0);//
+        glVertex2i(-10,25);
+        glVertex2i(-62,30);
+        glVertex2i(-62,20);
+        glVertex2i(-10,15);
+        glVertex2i(-10,25);
+
+
+
+
+    glEnd();
+
+
+//------------------------------------------RIVER--------------------------------------------------
+    glBegin(GL_POLYGON);
+        glColor3ub(30,144,255);
+        glVertex2i(-200,-50);
+        glVertex2i(200,-30);
+        glColor3ub(0,0,128);
+        glVertex2i(200,-200);
+        glVertex2i(-200,-200);
+        glVertex2i(-200,-50);
+    glEnd();
+    glBegin(GL_POLYGON); // border
+        glColor3ub(128,128,0);
+        glVertex2i(-200,-45);
+        glVertex2i(200,-25);
+        glVertex2i(200,-30);
+        glVertex2i(-200,-50 );
+        glVertex2i(-200,-45);
+    glEnd();
+
+//-------------------------------------------kcloud-------------------------------------------------
+	glPushMatrix();
+	glColor3ub(220,220,220);
+    glTranslatef(tx,0,0);
+    kcloud(0,250);
+    kcloud(15,245);
+    kcloud(10,240);
+    kcloud(-2,243);
+
+
+
+    kcloud(-80,250);
+    kcloud(-95,245);
+    kcloud(-90,240);
+    kcloud(-90,243);
+    kcloud(-75,243);
+
+    glPopMatrix();
+    tx+=.01;
+    if(tx>200)
+    tx=-200;
+//-------------------------------------------BOAT-------------------------------------------------
+    glPushMatrix();
+	glColor3f(0.0f, 0.0f, 0.0f);//Black
+    glTranslatef(bx,0,0);
+    glBegin(GL_POLYGON);
+        glVertex2i(-180,-70);
+        glVertex2i(-165,-100);
+        glVertex2i(-150,-120);
+        glVertex2i(-150,-100);
+        glVertex2i(-180,-70);
+    glEnd();
+    glBegin(GL_POLYGON);
+        glVertex2i(-150,-100);
+        glVertex2i(-150,-120);
+        glVertex2i(-120,-125);
+        glVertex2i(-90,-120);
+        glVertex2i(-85,-100);
+        glVertex2i(-150,-100);
+    glEnd();
+    glBegin(GL_POLYGON);
+        glVertex2i(-85,-100);
+        glVertex2i(-90,-120);
+        glVertex2i(-75,-105);
+        glVertex2i(-60,-70);
+        glVertex2i(-85,-100);
+    glEnd();
+    glColor3ub(211,211,211);
+    ksun(-165,260);
+    ksun(-185,245);
+    ksun(-180,240);
+    ksun(-152,243);
+
+    //--------------------------BOAT FLAG----------------------------
+    glBegin(GL_POLYGON);
+        glColor3ub(173,216,230);
+        glVertex2i(-57,-40);
+        glVertex2i(-50,-10);
+        glVertex2i(-49,10);
+        glVertex2i(-50,30);
+        glVertex2i(-55,45);
+        glVertex2i(-63,57);
+        glVertex2i(-73,68); // end
+        glVertex2i(-105,45);
+        glVertex2i(-50,-10);
+
+
+    glEnd();
+    glBegin(GL_POLYGON);
+        glColor3ub(173,216,230);
+
+        glVertex2i(-68,-70);
+        glVertex2i(-57,-40);
+        glVertex2i(-85,10);
+        glVertex2i(-68,-70);
+    glEnd();
+    glBegin(GL_POLYGON);
+        glColor3ub(173,216,230);
+        glVertex2i(-85,-100);
+        glVertex2i(-68,-70);
+        glVertex2i(-80,-10);
+        glVertex2i(-85,-100);
+
+    glEnd();
+
+    glColor3ub(139,69,19);
+    glRecti(-88,80,-86,-100);  // Boat stand
+    glBegin(GL_POLYGON);
+        glColor3f(0.55,0.27,0.0745);//wood color
+        glVertex2i(-85,-100);
+        glVertex2i(-87,-80);
+        glVertex2i(-93,-62);
+        glVertex2i(-97,-55);
+        glVertex2i(-105,-50);
+        glVertex2i(-120,-48);
+        glVertex2i(-120,-100);
+        glVertex2i(-85,-100);
+
+    glEnd();
+
+    glBegin(GL_POLYGON);
+        glColor3f(0.55,0.27,0.0745);//wood color
+        glVertex2i(-150,-100);
+        glVertex2i(-148,-80);
+        glVertex2i(-142,-62);
+        glVertex2i(-138,-55);
+        glVertex2i(-130,-50);
+        glVertex2i(-115,-48);
+        glVertex2i(-115,-100);
+        glVertex2i(-150,-100);
+
+
+    glEnd();
+
+//--------------------------BOAT LINE----------------------------
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-142,-62);
+        glVertex2i(-73,68);
+        glVertex2i(-73,63);
+
+        glVertex2i(-142,-62);
+        glVertex2i(-105,45);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-148,-80);
+        glVertex2i(-87,-80);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-142,-62);
+        glVertex2i(-93,-62);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-115,-48);
+        glVertex2i(-115,-100);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-130,-50);
+        glVertex2i(-130,-100);
+    glEnd();
+    glBegin(GL_LINE_STRIP);
+        glColor3f(0.0f, 0.0f, 0.0f);//Black
+        glVertex2i(-100,-52);
+        glVertex2i(-100,-100);
+    glEnd();
+
+
+
+
+
+    glPopMatrix();
+    bx+=.03;
+    if(bx>270)
+    bx=-180;
+
+
+    glutPostRedisplay();
+    glColor3ub(255,255,255);//
+    glRecti(-210,310,-200,-210);
+    glRecti(200,310,210,-210);
+//--------------------------------------------------------------------------------------------
+   // glFlush();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*==========================Main function================================== */
 
 int currentScene = 0;  // global, only once
@@ -5992,35 +6581,40 @@ void init() {
 
 void globalKeyboard(unsigned char key, int x, int y) {
     switch (key) {
-    case '1':                 // Dhaka
+    case '1':
         currentScene = 0;
-        initDhaka();          // scene-specific states only
+        initDhaka();
         glutPostRedisplay();
         break;
-
-    case '2':                 // Beach
+    case '2':
         currentScene = 1;
         initBeach();
         glutPostRedisplay();
         break;
-
-    case '3':                 // Village / Boat scene
+    case '3':
         currentScene = 2;
-        initVillage();        // create this: reset boatPosX, cloudPosX, etc.
+        initVillage();      // your old village scene
+        glutPostRedisplay();
+        break;
+    case '4':
+        currentScene = 3;
+        initVillage4();     // new scene-4 init
         glutPostRedisplay();
         break;
 
     default:
-        // Route other keys to the active scene’s own keyboard
         if (currentScene == 0)
-            rkeyboard(key, x, y);      // Dhaka keys (day/night, rain, etc.)
+            rkeyboard(key, x, y);   // Dhaka
         else if (currentScene == 1)
-            pkeyboard(key, x, y);      // Beach keys
+            pkeyboard(key, x, y);   // Beach
         else if (currentScene == 2)
-            vkeyboard(key, x, y);      // Village/boat keys (d/s/a)
+            vkeyboard(key, x, y);   // old village boat scene
+        else if (currentScene == 3)
+            vkeyboard(key, x, y);   // reuse same keys (d/s/a) for clouds/boat
         break;
     }
 }
+
 
 
 
@@ -6029,24 +6623,30 @@ void display() {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     if (currentScene == 0)
         gluOrtho2D(0, 1000, 0, 600);   // Dhaka
     else if (currentScene == 1)
         gluOrtho2D(0, 1000, 0, 600);   // Beach (same size)
-    else
+    else if (currentScene == 2)
         gluOrtho2D(0, 1200, 0, 750);
-
+        else
+            glOrtho(-200,210,-210,310,-210,310);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     if (currentScene == 0)
         displayDhaka();
     else if (currentScene == 1)
-        pdisplay();          // beach
+        pdisplay();
     else if (currentScene == 2)
         displayVillageScene3();
+    else if (currentScene == 3)
+        drawVillageScene4();    // <‑‑ must be here
 
-    glutSwapBuffers();
+    glutSwapBuffers();          // if using GLUT_DOUBLE
 }
 
 
@@ -6055,18 +6655,16 @@ void display() {
 void globalIdle() {
     if (currentScene == 0) {
         // Dhaka animation - rain update only (rtimer handles the rest)
-        if (dhakaIsRaining) {
-            dhakaRainOffset += 1.0f;
-            if (dhakaRainOffset > 100.0f)
-                dhakaRainOffset -= 100.0f;
+        if (isRaining) {
+            rainOffset += 1.0f;
+            if (rainOffset > 100) rainOffset -= 100;
         }
     } else {
         // Beach animation update
-        ptimer();  // This updates all beach animations (including beachRainOffset)
+        ptimer();  // This will update all beach animations
     }
     glutPostRedisplay();
 }
-
 
 /// Add this new timer function that handles both scenes
 void globalTimer(int value) {
@@ -6141,40 +6739,38 @@ void globalTimer(int value) {
             nightTimer = 0.0f;
             isNight = !isNight;
         }
-
-        // Dhaka rain update
-        if (dhakaIsRaining) {
-            dhakaRainOffset += 1.0f;
-            if (dhakaRainOffset > 100.0f)
-                dhakaRainOffset -= 100.0f;
+        if (isRaining) {
+            rainOffset += 1.0f;
+            if (rainOffset > 100) rainOffset -= 100;
         }
-
     } else if (currentScene == 1) {
         // Beach scene updates (ptimer logic)
         ptimer();
     }
     else if (currentScene == 2) {
         // Scene 3 (village/boat) updates
-        updateBoat(0);
-        updateCloud(0);
+        updateBoat(0);       // or inline boatPosX logic
+        updateCloud(0);      // or your cloudPosX logic
+        // make sure these functions do NOT call glutTimerFunc again
+        // and only change positions
     }
 
     glutPostRedisplay();
-    glutTimerFunc(30, globalTimer, 0);
+    glutTimerFunc(30, globalTimer, 0);  // Call itself again
 }
-
 void terminal() {
     cout << "========================================" << endl;
     cout << " PORTRAIT OF BANGLADESH - OpenGL Scenes " << endl;
     cout << "========================================" << endl;
     cout << "Created by: Rashedul Alam" << endl;
-    cout << "Scenes: Dhaka City, Beach, Village Boat" << endl;
+    cout << "Scenes: Dhaka City, Beach, Village Boat, Village Scenery" << endl;
     cout << "========================================" << endl;
     cout << endl;
     cout << "GLOBAL CONTROLS:" << endl;
     cout << "  1       -> Dhaka City Scene" << endl;
     cout << "  2       -> Beach Scene" << endl;
     cout << "  3       -> Village & Boat Scene" << endl;
+    cout << "  4       -> Village Scenery (Tubewell, Fence, Boat)" << endl;
     cout << "  ESC     -> Exit Program" << endl;
     cout << endl;
     cout << "DHAKA SCENE:" << endl;
@@ -6186,17 +6782,21 @@ void terminal() {
     cout << "BEACH SCENE:" << endl;
     cout << "  Scene-specific keys (waves, sun, etc.)" << endl;
     cout << endl;
-    cout << "VILLAGE & BOAT SCENE:" << endl;
+    cout << "VILLAGE & BOAT SCENE (3):" << endl;
     cout << "  D       -> Move clouds right" << endl;
     cout << "  S       -> Stop clouds" << endl;
     cout << "  A       -> Step clouds left" << endl;
+    cout << endl;
+    cout << "VILLAGE SCENERY SCENE (4):" << endl;
+    cout << "  (Animated clouds & boat; no extra keys yet)" << endl;
     cout << endl;
     cout << "FEATURES:" << endl;
     cout << "  - Animated metro train with station" << endl;
     cout << "  - Moving vehicles on 3 roads" << endl;
     cout << "  - Walking people with umbrellas in rain" << endl;
     cout << "  - Beach environment with animation" << endl;
-    cout << "  - Village river, boat and bullock cart" << endl;
+    cout << "  - Village river, boats and bullock cart" << endl;
+    cout << "  - Traditional village scenery with tubewell & fence" << endl;
     cout << "  - Dynamic day/night and rain effects" << endl;
     cout << "========================================" << endl;
     cout << "Program Started. Enjoy the simulation!" << endl;
@@ -6204,24 +6804,19 @@ void terminal() {
     cout << endl;
 }
 
-int main(int argc, char** argv) {
+
+int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1000, 600);
-
+    glutCreateWindow("Portrait of Bangladesh...");
     terminal();
-    glutCreateWindow("Portrait of Bangladesh");
-
-
     initDhaka();
     glutDisplayFunc(display);
     glutKeyboardFunc(globalKeyboard);
     glutSpecialFunc(pspecialKeys);
-    glutMouseFunc(pmouse);
-    glutTimerFunc(0, globalTimer, 0);
-
+    glutTimerFunc(30, globalTimer, 0);
     glutMainLoop();
-
     return 0;
 }
 
