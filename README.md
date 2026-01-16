@@ -127,6 +127,9 @@ Discover the peaceful countryside of rural Bangladesh:
 **Day View**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/4d25f2ca-72cb-43d4-a787-5dc0dc9b1ad3" />
 
+### 🌾 Scene 3: Village & River
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d93a5fd7-2777-4f9a-b863-d3c585daadc7" />
+
 ## 🎮 Controls
 
 ### General Scene Navigation
@@ -135,6 +138,7 @@ Discover the peaceful countryside of rural Bangladesh:
 | `1` | Switch to Dhaka City scene |
 | `2` | Switch to Beach scene |
 | `3` | Switch to Village & Boat scene |
+| `4` | Switch to Village scene 2 |
 | `ESC` | Exit program |
 
 ### Dhaka City Scene (Scene 1)
@@ -166,20 +170,6 @@ Discover the peaceful countryside of rural Bangladesh:
 | `D` | Start/continue cloud movement to the right |
 | `S` | Stop cloud movement |
 | `A` | Step clouds to the left (manual control) |
-
-> **Note:** The boat and river animations run automatically via timers.
-
-## 🛠️ Technical Requirements
-
-### Prerequisites
-- C++ compiler (GCC 7.0+ or MSVC 2017+)
-- OpenGL 3.3 or higher
-- GLUT (FreeGLUT recommended) or GLFW
-- CMake 3.10+ (optional, for build management)
-
-
-
-## 📦 Installation & Setup
 
 ### Clone the Repository
 ```bash
@@ -261,13 +251,10 @@ Contributions are welcome! Here's how you can help:
 ## 📧 Contact
 
 **Project Maintainer:** [Rashedul alam]
-- GitHub: [@yourusername](https://github.com/rashedmojammel)
+- GitHub: [@rashedmojammel](https://github.com/rashedmojammel)
 - Email: rashedmojammel56@gmail.com
 
 ## 🌟 Show Your Support
 
 If you found this project interesting, please consider giving it a ⭐️ on GitHub!
 
----
-
-**Made with ❤️ to showcase the beauty of Bangladesh**
