@@ -4,7 +4,6 @@ A dynamic OpenGL-based simulation featuring three beautifully animated scenes sh
 
 ![OpenGL](https://img.shields.io/badge/OpenGL-3.3-blue)
 ![C++](https://img.shields.io/badge/C++-11-green)
-![License](https://img.shields.io/badge/license-MIT-orange)
 
 ## ✨ Features
 
