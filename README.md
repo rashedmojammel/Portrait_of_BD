@@ -255,7 +255,3 @@ Contributions are welcome! Here's how you can help:
 - Email: rashedmojammel56@gmail.com
 - Facebook : Rashed mojammel
 
-## 🌟 Show Your Support
-
-If you found this project interesting, please consider giving it a ⭐️ on GitHub!
-
