@@ -6,7 +6,7 @@ A dynamic OpenGL-based simulation featuring three beautifully animated scenes sh
 
 ![C++](https://img.shields.io/badge/C++-11-green)
 
-## ✨ Features
+## ✨ Features :
 
 ### 🏙️ Scene 1: Dhaka City
 
