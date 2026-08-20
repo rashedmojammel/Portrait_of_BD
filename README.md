@@ -1,6 +1,6 @@
 # 🌆 Portrait of Bangladesh
 
-A dynamic OpenGL-based simulation featuring three beautifully animated scenes showcasing the diverse landscapes of Bangladesh: a bustling Dhaka cityscape, a serene beach environment, and a peaceful rural village with a traditional boat on the river. Built with C++ and OpenGL/GLUT.
+A dynamic OpenGL-based simulation featuring three beautifully animated scenes showcasing the diverse landscapes of Bangladesh: a bustling Dhaka cityscape, a serene beach environment, and a peaceful rural village with a traditional boat on the river. Built with C++ and OpenGL/GLUT!
 
 ![OpenGL](https://img.shields.io/badge/OpenGL-3.3-blue)
 
